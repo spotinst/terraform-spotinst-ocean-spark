@@ -1,0 +1,13 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.0.0
+    - uses: hashicorp/setup-terraform@v1
+
+    - name: validate fmt
+      run: terraform fmt -check -recursive
