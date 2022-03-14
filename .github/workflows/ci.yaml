@@ -11,3 +11,21 @@ jobs:
 
     - name: validate fmt
       run: terraform fmt -check -recursive
+
+    - name: setup local bin dir
+      run: |
+        mkdir -p $GITHUB_WORKSPACE/bin
+        echo "::add-path::$GITHUB_WORKSPACE/bin"
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+    - name: install terraform-docs
+      run: |
+        curl -Lo /tmp/terraform-docs.tar.gz https://github.com/terraform-docs/terraform-docs/releases/download/v0.16.0/terraform-docs-v0.16.0-$(uname)-amd64.tar.gz
+        tar -xzf /tmp/terraform-docs.tar.gz --directory /tmp
+        chmod +x /tmp/terraform-docs
+        mv /tmp/terraform-docs $GITHUB_WORKSPACE/bin/
+
+    - name: validate readme
+      run: |
+        make validate-doc
