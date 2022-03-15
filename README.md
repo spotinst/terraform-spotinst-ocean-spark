@@ -1,5 +1,9 @@
 # terraform-spotinst-ocean-spark
 
+A Terraform module to install [Ocean for Apache Spark](https://spot.io/products/ocean-apache-spark/) on an existing [Spot Ocean cluster](https://spot.io/products/ocean)
+
+### :warning: Ocean for Apache Spark is currently only available on AWS
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
