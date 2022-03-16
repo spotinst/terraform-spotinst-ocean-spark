@@ -35,11 +35,10 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_create_ofas_cluster"></a> [create\_ofas\_cluster](#input\_create\_ofas\_cluster) | Specifies whether to create an Ocean for Apache Spark cluster | `bool` | `true` | no |
-| <a name="input_create_spot_system_namespace"></a> [create\_spot\_system\_namespace](#input\_create\_spot\_system\_namespace) | Specifies whether to create a namespace for the Spot components | `bool` | `true` | no |
+| <a name="input_create_cluster"></a> [create\_cluster](#input\_create\_cluster) | Controls whether the Ocean for Apache Spark cluster should be created (it affects all resources) | `bool` | `true` | no |
+| <a name="input_deployer_image"></a> [deployer\_image](#input\_deployer\_image) | Specifies the Docker image name used in the deployer Job | `string` | `"public.ecr.aws/f4k1p1n4/bigdata-deployer"` | no |
+| <a name="input_deployer_tag"></a> [deployer\_tag](#input\_deployer\_tag) | Specifies the Docker image tag used in the deployer Job | `string` | `"main"` | no |
 | <a name="input_image_pull_policy"></a> [image\_pull\_policy](#input\_image\_pull\_policy) | Specifies the image pull policy (one of: Always, Never, IfNotPresent) | `string` | `"Always"` | no |
-| <a name="input_ofas_deployer_image"></a> [ofas\_deployer\_image](#input\_ofas\_deployer\_image) | Specifies the Docker image name used in the deployer Job | `string` | `"public.ecr.aws/f4k1p1n4/bigdata-deployer"` | no |
-| <a name="input_ofas_deployer_tag"></a> [ofas\_deployer\_tag](#input\_ofas\_deployer\_tag) | Specifies the Docker image tag used in the deployer Job | `string` | `"main"` | no |
 
 ## Outputs
 

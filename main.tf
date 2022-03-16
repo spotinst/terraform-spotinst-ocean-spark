@@ -5,14 +5,14 @@ locals {
 }
 
 resource "kubernetes_namespace" "spot-system" {
-  count = var.create_ofas_cluster && var.create_spot_system_namespace ? 1 : 0
+  count = var.create_cluster ? 1 : 0
   metadata {
     name = local.spot_system_namespace
   }
 }
 
 resource "kubernetes_service_account" "deployer" {
-  count = var.create_ofas_cluster ? 1 : 0
+  count = var.create_cluster ? 1 : 0
   metadata {
     name      = local.service_account_name
     namespace = local.spot_system_namespace
@@ -20,7 +20,7 @@ resource "kubernetes_service_account" "deployer" {
 }
 
 resource "kubernetes_cluster_role_binding" "deployer" {
-  count = var.create_ofas_cluster ? 1 : 0
+  count = var.create_cluster ? 1 : 0
   metadata {
     name = local.role_binding_name
   }
@@ -37,7 +37,7 @@ resource "kubernetes_cluster_role_binding" "deployer" {
 }
 
 resource "kubernetes_job" "deployer" {
-  count = var.create_ofas_cluster ? 1 : 0
+  count = var.create_cluster ? 1 : 0
   metadata {
     generate_name = "ofas-deploy-"
     namespace     = local.spot_system_namespace
@@ -48,7 +48,7 @@ resource "kubernetes_job" "deployer" {
       spec {
         container {
           name              = "deployer"
-          image             = "${var.ofas_deployer_image}:${var.ofas_deployer_tag}"
+          image             = "${var.deployer_image}:${var.deployer_tag}"
           image_pull_policy = var.image_pull_policy
           args              = ["install", "--create-bootstrap-environment"]
         }
