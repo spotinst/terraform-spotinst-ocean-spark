@@ -16,34 +16,34 @@ It can be combined with other Ocean Terraform modules to support a number of ins
 The diagram below details those different installation methods.
 Read on for more details.
 
-![Terraform module usage](docs/module_usage.svg)
+![Terraform module usage](https://raw.githubusercontent.com/spotinst/terraform-spotinst-ocean-spark/main/docs/module_usage.svg)
 
 ### 1. Create an Ocean Spark cluster from scratch
 
 In this case, use the [`ocean-eks` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-eks/spotinst/latest) to create an Ocean cluster from scratch.
 Then, use the `ocean-spark` Terraform module (this module) to import the cluster into Ocean Spark.
 
-Folder [`examples/from-scratch/`](examples/from-scratch/) contains a full example.
+Folder [`examples/from-scratch/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/from-scratch) contains a full example.
 
 ### 2. Create an Ocean Spark cluster within an existing VPC
 
 In this case, use the [AWS `eks` Terraform module](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest) to create an EKS cluster.
 Then, use the [`ocean-aws-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aws-k8s/spotinst/latest) to import the EKS cluster into Ocean, and the `ocean-spark` Terraform module (this module) to import the resulting Ocean cluster into Ocean Spark.
 
-Folder [`examples/from-private-vpc/`](examples/from-private-vpc/) contains a full example.
+Folder [`examples/from-private-vpc/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/from-private-vpc) contains a full example.
 
 ### 3. Import an existing EKS cluster
 
 In this case, use the [`ocean-controller` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-controller/spotinst/latest) and the [`spotinst_ocean_aws` Terraform resource](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_aws) to import the EKS cluster into Ocean.
 Then, use the `ocean-spark` Terraform module (this module) to import the resulting Ocean cluster into Ocean Spark.
 
-Folder [`examples/import-eks-cluster/`](examples/import-eks-cluster/) contains a full example.
+Folder [`examples/import-eks-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/import-eks-cluster) contains a full example.
 
 ### 4. Import an existing Ocean cluster
 
 In this case, use the `ocean-spark` Terraform module (this module) to import the existing Ocean cluster into Ocean Spark.
 
-Folder [`examples/import-ocean-cluster/`](examples/import-ocean-cluster/) contains a full example.
+Folder [`examples/import-ocean-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/import-ocean-cluster) contains a full example.
 
 ## Terraform module documentation
 
