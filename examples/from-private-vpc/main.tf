@@ -22,6 +22,8 @@ module "eks" {
   subnet_ids = concat(var.public_subnet_ids, var.private_subnet_ids)
 
   self_managed_node_groups = {
+    # This node group is needed upon cluster creation so that the controller pods enabling
+    # Ocean and Ocean Spark functionalities can be scheduled.
     bootstrap = {
       instance_type = "c5.large"
       max_size      = 5
