@@ -161,6 +161,8 @@ module "ocean-aws-k8s" {
   worker_instance_profile_arn = module.eks.self_managed_node_groups["bootstrap"].iam_instance_profile_arn
   security_groups             = [module.eks.node_security_group_id]
 
+  max_scale_down_percentage = 100
+
 }
 
 provider "kubernetes" {
