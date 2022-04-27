@@ -1,40 +1,57 @@
-resource "spotinst_ocean_aws" "this" {
-  name                 = var.cluster_name
-  controller_id        = var.cluster_name
-  region               = var.aws_region
-  subnet_ids           = data.aws_eks_cluster.this.vpc_config.0.subnet_ids
-  security_groups      = [data.aws_eks_cluster.this.vpc_config.0.cluster_security_group_id]
-  iam_instance_profile = var.node_instance_profile
+provider "aws" {
+  region  = var.aws_region
+  profile = var.aws_profile
+}
 
-  image_id = data.aws_ami.eks_default.image_id
+data "aws_eks_cluster" "this" {
+  name = var.cluster_name
+}
 
-  user_data = <<-EOF
-    #!/bin/bash
-    set -o xtrace
-    /etc/eks/bootstrap.sh ${var.cluster_name}
-EOF
+data "aws_eks_cluster_auth" "this" {
+  name = var.cluster_name
+}
 
-  tags {
-    key   = "kubernetes.io/cluster/${var.cluster_name}"
-    value = "owned"
-  }
+################################################################################
+# Import EKS cluster into Ocean
+################################################################################
+
+provider "spotinst" {
+  token   = var.spotinst_token
+  account = var.spotinst_account
+}
+
+module "ocean-aws-k8s" {
+  source = "spotinst/ocean-aws-k8s/spotinst"
+
+  cluster_name                = var.cluster_name
+  region                      = var.aws_region
+  subnet_ids                  = var.node_subnet_ids
+  worker_instance_profile_arn = var.node_iam_instance_profile_arn
+  security_groups             = [var.node_security_group_id]
+
+  max_scale_down_percentage = 100
+
+}
+
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.this.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.this.token
 }
 
 module "ocean-controller" {
   source = "spotinst/ocean-controller/spotinst"
 
-  # Credentials.
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account
 
-  # Configuration.
   cluster_identifier = var.cluster_name
 }
 
+################################################################################
+# Import Ocean cluster into Ocean Spark
+################################################################################
+
 module "ocean-spark" {
   source = "../.."
-  depends_on = [
-    module.ocean-controller,
-    spotinst_ocean_aws.this
-  ]
 }
