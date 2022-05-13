@@ -7,3 +7,6 @@ terraform.tfstate.backup
 *.tfvars
 
 kubeconfig*
+
+# Editors
+.vscode/
