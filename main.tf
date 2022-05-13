@@ -60,8 +60,8 @@ resource "kubernetes_job" "deployer" {
   }
   wait_for_completion = true
   timeouts {
-    create = "5m"
-    update = "2m"
+    create = "10m"
+    update = "10m"
   }
   depends_on = [
     kubernetes_namespace.spot-system,
