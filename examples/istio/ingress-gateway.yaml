@@ -1,0 +1,38 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: nginx-ingress-controller-proxy-gateway
+  namespace: spot-system
+spec:
+  selector:
+    istio: ingressgateway # use istio default ingress gateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: PASSTHROUGH
+    hosts:
+    - org-606079875230-osc-49c8ea64.bigdata.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: nginx-ingress-proxy-virtual-service
+  namespace: spot-system
+spec:
+  hosts:
+  - org-606079875230-osc-49c8ea64.bigdata.svc.cluster.local
+  gateways:
+  - nginx-ingress-controller-proxy-gateway
+  tls:
+  - match:
+    - port: 443
+      sniHosts:
+      - org-606079875230-osc-49c8ea64.bigdata.svc.cluster.local
+    route:
+    - destination:
+        host: ofas-ingress-nginx-controller
+        port:
+          number: 443
