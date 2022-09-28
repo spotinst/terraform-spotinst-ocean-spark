@@ -47,4 +47,6 @@ module "ocean-controller" {
 
 module "ocean-spark" {
   source = "../.."
+
+  ocean_cluster_id = spotinst_ocean_gke_import.ocean.id
 }
