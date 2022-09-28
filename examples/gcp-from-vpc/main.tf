@@ -69,7 +69,6 @@ module "ocean-controller" {
 ################################################################################
 module "ocean-spark" {
   source = "../.."
-  depends_on = [
-    resource.spotinst_ocean_gke_import.ocean
-  ]
+
+  ocean_cluster_id = spotinst_ocean_gke_import.ocean.id
 }

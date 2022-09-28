@@ -54,4 +54,6 @@ module "ocean-controller" {
 
 module "ocean-spark" {
   source = "../.."
+
+  ocean_cluster_id = module.ocean-aws-k8s.ocean_id
 }

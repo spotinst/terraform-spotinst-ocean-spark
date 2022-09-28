@@ -84,7 +84,7 @@ provider "spotinst" {
 }
 
 resource "spotinst_ocean_gke_import" "ocean" {
-  cluster_name          = var.cluster_name
+  cluster_name          = google_container_cluster.cluster.name
   controller_cluster_id = var.cluster_name
   location              = var.region
 }
@@ -111,4 +111,6 @@ module "ocean-controller" {
 ################################################################################
 module "ocean-spark" {
   source = "../.."
+
+  ocean_cluster_id = spotinst_ocean_gke_import.ocean.id
 }

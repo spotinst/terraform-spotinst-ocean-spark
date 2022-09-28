@@ -2,7 +2,7 @@ terraform {
   required_providers {
     spotinst = {
       source  = "spotinst/spotinst"
-      version = "~> 1.64"
+      version = "~> 1.84"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
