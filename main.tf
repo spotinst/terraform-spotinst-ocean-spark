@@ -36,36 +36,24 @@ resource "kubernetes_cluster_role_binding" "deployer" {
   }
 }
 
-resource "kubernetes_job" "deployer" {
-  count = var.create_cluster ? 1 : 0
-  metadata {
-    generate_name = "ofas-deploy-"
-    namespace     = local.spot_system_namespace
+resource "spotinst_ocean_spark" "cluster" {
+  ocean_cluster_id = var.ocean_cluster_id
+
+  compute {
+    create_vngs = var.compute_create_vngs
+    use_taints  = var.compute_use_taints
   }
-  spec {
-    template {
-      metadata {}
-      spec {
-        container {
-          name              = "deployer"
-          image             = "${var.deployer_image}:${var.deployer_tag}"
-          image_pull_policy = var.image_pull_policy
-          args              = ["install", "--create-bootstrap-environment"]
-        }
-        restart_policy       = "Never"
-        service_account_name = local.service_account_name
-      }
-    }
-    ttl_seconds_after_finished = 300
+
+  ingress {
+    service_annotations = var.ingress_service_annotations
   }
-  wait_for_completion = true
-  timeouts {
-    create = "10m"
-    update = "10m"
+
+  log_collection {
+    collect_driver_logs = var.log_collection_collect_driver_logs
   }
-  depends_on = [
-    kubernetes_namespace.spot-system,
-    kubernetes_service_account.deployer,
-    kubernetes_cluster_role_binding.deployer,
-  ]
+
+  webhook {
+    use_host_network   = var.webhook_use_host_network
+    host_network_ports = var.webhook_host_network_ports
+  }
 }
