@@ -2,7 +2,27 @@
 
 A Terraform module to install the [Ocean for Apache Spark](https://spot.io/products/ocean-apache-spark/) data platform.
 
-### :warning: Ocean for Apache Spark is currently only available on AWS.
+### :warning: Ocean for Apache Spark is currently only available on AWS and GCP.
+
+## Migration Guide
+
+###  v1 migration guide
+
+This migration revolves around 1 topic:
+
+- The use of the `spotinst_ocean_spark` resource to manage the cluster state instead of relying on a `kubernetes job` on the 1st apply
+
+#### Steps
+
+1- Upgrade `spotinst provider` to `>= 1.84`
+
+2- [Retrieve from the UI](https://console.spotinst.com/ocean/spark/clusters) your Ocean Spark `Cluster ID`
+
+3- Import the resource into your `terraform state`
+```
+terraform import module.ocean-spark.spotinst_ocean_spark.example osc-abcd1234
+```
+
 
 ## Overview
 
