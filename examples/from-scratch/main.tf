@@ -16,12 +16,16 @@ locals {
   private_2 = cidrsubnet(var.vpc_cidr, 2, 3)
 }
 
+locals {
+  new_vpc_name = "${var.vpc_name}-${var.cluster_name}-vpc"
+}
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 2.70"
 
   create_vpc           = true
-  name                 = var.vpc_name
+  name                 = local.new_vpc_name
   cidr                 = var.vpc_cidr
   azs                  = data.aws_availability_zones.available.names
   private_subnets      = [local.private_1, local.private_2]

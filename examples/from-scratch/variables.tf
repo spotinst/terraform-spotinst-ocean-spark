@@ -20,8 +20,11 @@ variable "cluster_name" {
 
 variable "vpc_name" {
   type = string
+  default = ""
 }
 
 variable "vpc_cidr" {
   type = string
+  default = "192.168.0.0/16"
+  description = "The CIDRs for the new vpc"
 }
