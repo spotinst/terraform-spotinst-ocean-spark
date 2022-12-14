@@ -160,12 +160,21 @@ module "eks" {
       self        = true
     }
     ingress_node_9443 = {
-      description = "Cluster API to load balancer webhook"
-      protocol    = "tcp"
-      from_port   = 9443
-      to_port     = 9443
+      description                   = "Cluster API to load balancer webhook"
+      protocol                      = "tcp"
+      from_port                     = 9443
+      to_port                       = 9443
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
+
+    ingress_node_443 = {
+      description = "VPC to Nodes (LB health check)"
+      protocol    = "TCP"
+      from_port   = 443
+      to_port     = 443
       type        = "ingress"
-      self        = true
+      cidr_blocks = [module.vpc.vpc_cidr_block]
     }
   }
 
@@ -226,122 +235,6 @@ resource "null_resource" "patch" {
 ################################################################################
 #   Install the aws load balancer controller
 ################################################################################
-
-data "aws_iam_policy_document" "cluster_assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-    effect  = "Allow"
-
-    condition {
-      test     = "StringEquals"
-      variable = "${module.eks.oidc_provider}:sub"
-      values   = ["system:serviceaccount:kube-system:aws-node"]
-    }
-
-    principals {
-      identifiers = [module.eks.oidc_provider_arn]
-      type        = "Federated"
-    }
-  }
-}
-
-resource "aws_iam_role" "load-balancer-controller-role" {
-  name        = "${var.cluster_name}-aws-load-balancer-controller"
-  description = "Permissions required by the Kubernetes AWS Load Balancer controller to do its job."
-
-  force_detach_policies = true
-
-  assume_role_policy = data.aws_iam_policy_document.cluster_assume_role_policy.json
-}
-
-
-resource "aws_iam_policy" "load-balancer-policy" {
-  name        = "${var.vpc_name}AWSLoadBalancerControllerIAMPolicy"
-  description = "AWS LoadBalancer Controller IAM Policy"
-
-  policy = file("iam-policy.json")
-
-}
-
-resource "aws_iam_role_policy_attachment" "this" {
-  policy_arn = aws_iam_policy.load-balancer-policy.arn
-  role       = aws_iam_role.load-balancer-controller-role.name
-}
-
-resource "kubernetes_service_account" "this" {
-  automount_service_account_token = true
-  metadata {
-    name      = "aws-load-balancer-controller"
-    namespace = "kube-system"
-    annotations = {
-      "eks.amazonaws.com/role-arn" = aws_iam_role.load-balancer-controller-role.arn
-    }
-    labels = {
-      "app.kubernetes.io/name"       = "aws-load-balancer-controller"
-      "app.kubernetes.io/component"  = "controller"
-      "app.kubernetes.io/managed-by" = "terraform"
-    }
-  }
-}
-
-resource "kubernetes_cluster_role" "this" {
-  metadata {
-    name = "aws-load-balancer-controller"
-
-    labels = {
-      "app.kubernetes.io/name"       = "aws-load-balancer-controller"
-      "app.kubernetes.io/managed-by" = "terraform"
-    }
-  }
-
-  rule {
-    api_groups = [
-      "",
-      "extensions",
-    ]
-
-    resources = [
-      "configmaps",
-      "endpoints",
-      "events",
-      "ingresses",
-      "ingresses/status",
-      "services",
-    ]
-
-    verbs = [
-      "create",
-      "get",
-      "list",
-      "update",
-      "watch",
-      "patch",
-    ]
-  }
-
-  rule {
-    api_groups = [
-      "",
-      "extensions",
-    ]
-
-    resources = [
-      "nodes",
-      "pods",
-      "secrets",
-      "services",
-      "namespaces",
-    ]
-
-    verbs = [
-      "get",
-      "list",
-      "watch",
-    ]
-  }
-}
-
-
 provider "helm" {
   kubernetes {
     host                   = module.eks.cluster_endpoint
@@ -350,28 +243,15 @@ provider "helm" {
   }
 }
 
-resource "helm_release" "aws-load-balancer-controller" {
-  name       = "aws-load-balancer-controller"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
+module "load_balancer_controller" {
+  source = "git::https://github.com/DNXLabs/terraform-aws-eks-lb-controller.git"
 
-  dynamic "set" {
+  cluster_identity_oidc_issuer     = module.eks.cluster_oidc_issuer_url
+  cluster_identity_oidc_issuer_arn = module.eks.oidc_provider_arn
+  cluster_name                     = module.eks.cluster_id
 
-    for_each = {
-      "clusterName"           = var.cluster_name
-      "serviceAccount.create" = false
-      "serviceAccount.name"   = kubernetes_service_account.this.metadata[0].name
-      "region"                = var.aws_region
-      "vpcId"                 = module.vpc.vpc_id
-    }
-    content {
-      name  = set.key
-      value = set.value
-    }
-  }
+  enabled = true
 }
-
 
 ################################################################################
 # Import EKS cluster into Ocean
