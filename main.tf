@@ -45,7 +45,19 @@ resource "spotinst_ocean_spark" "cluster" {
   }
 
   ingress {
-    service_annotations = var.ingress_service_annotations
+    load_balancer {
+      managed             = var.ofas_managed_load_balancer
+      target_group_arn    = var.ingress_load_balancer_target_group_arn
+      service_annotations = var.ingress_load_balancer_service_annotations
+    }
+    custom_endpoint {
+      enabled = var.enable_custom_endpoint
+      address = var.ingress_custom_endpoint_address
+    }
+    private_link {
+      enabled              = var.enable_private_link
+      vpc_endpoint_service = var.ingress_private_link_endpoint_service_address
+    }
   }
 
   log_collection {
