@@ -53,7 +53,7 @@ module "vpc" {
 
 resource "aws_lb" "this" {
   name               = "${var.cluster_name}-nlb"
-  internal           = false
+  internal           = true
   load_balancer_type = "network"
   subnets            = module.vpc.private_subnets
 
