@@ -28,13 +28,16 @@ module "ocean-spark" {
 
 ### Examples
 It can be combined with other Terraform modules to support a number of installation methods for Ocean Spark:
-1. Create an Ocean Spark cluster from scratch in your cloud account
-2. Create an Ocean Spark cluster within an existing VPC
-3. Import an existing EKS cluster into Ocean Spark
-4. Import an existing Ocean cluster into Ocean Spark
+1. Create an Ocean Spark cluster from scratch in your AWS account
+2. Create an Ocean Spark Cluster from scratch in your AWS account with AWS Private Link support.
+3. Create an Ocean Spark cluster from scratch in your GCP account
+4. Import an existing EKS cluster into Ocean Spark
+5. Import an existing GKE cluster into Ocean Spark
+6. Import an existing Ocean cluster into Ocean Spark
 
 
-#### 1. Create an Ocean Spark cluster from scratch
+
+#### 1. Create an Ocean Spark cluster in AWS from scratch
 
 1. Use the [AWS `vpc` Terraform Module](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest) to create a VPC network.
 2. use the [AWS `eks` Terraform Module](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest) to create an EKS cluster.
@@ -44,16 +47,28 @@ It can be combined with other Terraform modules to support a number of installat
 
 Folder [`examples/from-scratch/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/from-scratch) contains a full example.
 
-#### 2. Create an Ocean Spark cluster within an existing VPC
+#### 2. Create an Ocean Spark Cluster from scratch with AWS Private Link support.
 
-1. Use the [AWS `eks` Terraform module](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest) to create an EKS cluster.
-2. Use the [SPOTINST `ocean-aws-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aws-k8s/spotinst/latest) to import the EKS cluster into Ocean
+1. Use the [AWS `vpc` Terraform Module](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest) to create a VPC network.
+2. Use the [AWS `eks` Terraform module](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest) to create an EKS cluster.
+3. Use the [SPOTINST `ocean-aws-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aws-k8s/spotinst/latest) to import the EKS cluster into Ocean
+4. Use the [SPOTINST `ocean-controller` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-controller/spotinst/latest) to install the controller deployment into kubernetes
+5. Create the Private link required resources (NLB, VPC endpoint service and LB TargetGroup). [AWS Docs About PrivateLink](https://docs.aws.amazon.com/vpc/latest/privatelink/getting-started.html).
+6. Use the [ Terraform AWS EKS LB Controller Module](https://github.com/DNXLabs/terraform-aws-eks-lb-controller) to install the aws load balancer controller in the EKS cluster.
+7. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark and set the [ ingress private link input ](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_spark#nestedblock--ingress--private_link)
+
+Folder [`examples/from-scratch-with-private-link/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/from-scratch-with-private-link) contains a full example.
+
+#### 3. Create an Ocean Spark cluster in GCP from scratch
+
+1. use the [GCP `google_container_cluster` Terraform resource](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster) to create an GKE cluster.
+2. Use the [SPOTINST `spotinst_ocean_gke_import` Terraform resource](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_gke_import) to import the GKE cluster into Ocean
 3. Use the [SPOTINST `ocean-controller` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-controller/spotinst/latest) to install the controller deployment into kubernetes
 4. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
 
-Folder [`examples/from-private-vpc/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/from-private-vpc) contains a full example.
+Folder [`examples/gcp-from-scratch/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/blob/main/examples/gcp-from-scratch/main.tf) contains a full example.
 
-#### 3. Import an existing EKS cluster
+#### 4. Import an existing EKS cluster
 
 1. Use the [SPOTINST `ocean-aws-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aws-k8s/spotinst/latest) to import the EKS cluster into Ocean
 2. Use the [SPOTINST `ocean-controller` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-controller/spotinst/latest) to install the controller deployment into kubernetes
@@ -61,7 +76,16 @@ Folder [`examples/from-private-vpc/`](https://github.com/spotinst/terraform-spot
 
 Folder [`examples/import-eks-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/import-eks-cluster) contains a full example.
 
-#### 4. Import an existing Ocean cluster
+#### 5. Import an existing GKE cluster
+
+1. Use the [SPOTINST `spotinst_ocean_gke_import` Terraform resource](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_gke_import) to import the GKE cluster into Ocean
+2. Use the [SPOTINST `ocean-controller` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-controller/spotinst/latest) to install the controller deployment into kubernetes
+3. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
+
+Folder [`examples/gcp-import-gke-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/blob/main/examples/gcp-import-gke-cluster/) contains a full example.
+
+
+#### 6. Import an existing Ocean cluster
 
 1. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
 
@@ -78,7 +102,7 @@ This migration revolves around 1 topic:
 
 #### Steps
 
-1- Upgrade `spotinst provider` to `>= 1.84`
+1- Upgrade `spotinst provider` to `>= 1.89`
 
 2- [Retrieve from the UI](https://console.spotinst.com/ocean/spark/clusters) your Ocean Spark `Cluster ID`
 
