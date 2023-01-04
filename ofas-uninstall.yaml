@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ofas-uninstall
+  namespace: spot-system
+spec:
+  template:
+    metadata:
+      labels:
+        sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - image: public.ecr.aws/f4k1p1n4/bigdata-deployer:0.1.27-9c433514
+          name: deployer
+          args:
+            - uninstall
+            - --delete-environments
+          resources: { }
+          imagePullPolicy: IfNotPresent
+      serviceAccountName: bigdata-deployer
+      restartPolicy: Never
+      tolerations:
+      - key: "bigdata.spot.io/unschedulable"
+        operator: "Equal"
+        value: "ocean-spark-system"
+        effect: "NoSchedule"
+  ttlSecondsAfterFinished: 300
