@@ -92,6 +92,16 @@ Folder [`examples/gcp-import-gke-cluster/`](https://github.com/spotinst/terrafor
 Folder [`examples/import-ocean-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/import-ocean-cluster) contains a full example.
 
 
+
+### :warning: Before running `terraform destroy`:warning:
+Follow those steps:
+
+1- Switch your kubectl context to the targeted cluster
+
+2- Run the script  `scripts/ofas-uninstall.sh` job to safely clean the ocean spark components
+
+3- Once the script is completed with success, you can now run `terraform destroy`
+
 ## Migration Guide
 
 ###  v1 migration guide

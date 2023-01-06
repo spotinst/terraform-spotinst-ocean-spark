@@ -35,6 +35,7 @@ resource "kubernetes_cluster_role_binding" "deployer" {
     namespace = local.spot_system_namespace
   }
 }
+
 resource "spotinst_ocean_spark" "cluster" {
   ocean_cluster_id = var.ocean_cluster_id
 
@@ -67,35 +68,4 @@ resource "spotinst_ocean_spark" "cluster" {
     use_host_network   = var.webhook_use_host_network
     host_network_ports = var.webhook_host_network_ports
   }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = "kubectl apply -f ../../ofas-uninstall.yaml"
-  }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<EOT
-    isCleaned=''
-    countWaiting=0
-    while [ $countWaiting -le 300 ] ;
-    do
-        isCleaned=$(kubectl get jobs ofas-uninstall -n spot-system -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' | grep True)
-        if [ "$isCleaned" != "True" ]; then
-            sleep 10;
-            ((countWaiting+=10))
-        else
-            break
-        fi
-    done
-    echo "done"
-    EOT
-  }
-
-  depends_on = [
-    kubernetes_namespace.spot-system,
-    kubernetes_service_account.deployer,
-    kubernetes_cluster_role_binding.deployer
-  ]
 }
-

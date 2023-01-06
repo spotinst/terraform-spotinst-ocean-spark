@@ -10,7 +10,7 @@ spec:
         sidecar.istio.io/inject: "false"
     spec:
       containers:
-        - image: public.ecr.aws/f4k1p1n4/bigdata-deployer:0.1.27-9c433514
+        - image: public.ecr.aws/ocean-spark/bigdata-deployer:0.1.27-9c433514
           name: deployer
           args:
             - uninstall
