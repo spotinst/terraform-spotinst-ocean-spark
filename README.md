@@ -127,8 +127,8 @@ terraform import module.ocean-spark.spotinst_ocean_spark.example osc-abcd1234
 
 | Name | Version |
 |------|---------|
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.16.1 |
-| <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | 1.90.0 |
+| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.0 |
+| <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | ~> 1.90 |
 
 ### Modules
 
