@@ -1,6 +1,4 @@
 #! /bin/bash
-set -e
-
 isCleaned=''
 countWaiting=0
 echo "Cleaning ocean-spark components started"
