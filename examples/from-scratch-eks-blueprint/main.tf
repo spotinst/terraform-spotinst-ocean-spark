@@ -14,11 +14,14 @@ locals {
   }
 }
 
-################################################################################
-# Create VPC
-################################################################################
+#################################
+### Create VPC ##################
+#################################
 
-# data "aws_availability_zones" "available" {}
+provider "aws" {
+  region  = var.aws_region
+  profile = var.aws_profile
+}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
