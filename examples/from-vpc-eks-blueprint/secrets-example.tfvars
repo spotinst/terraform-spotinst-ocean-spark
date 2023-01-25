@@ -4,7 +4,6 @@ cluster_name     = "example-cluster-name"
 cluster_version  = "1.24"
 aws_region       = "us-west-2"
 aws_profile      = "default"
-creator_email    = "example@example.com"
 vpc_id           = "vpc-00000000000000000"
 private_subnets  = ["subnet-00000000000000000", "subnet-00000000000000000", "subnet-00000000000000000"]
 public_subnets   = ["subnet-00000000000000000", "subnet-00000000000000000", "subnet-00000000000000000"]
