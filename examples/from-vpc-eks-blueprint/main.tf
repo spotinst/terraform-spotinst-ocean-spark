@@ -3,10 +3,9 @@
 #################################
 
 locals {
-    creator   = var.creator_email,
-    createdby = "terraform",
+    creator   = var.creator_email
+    createdby = "terraform"
     protected = "weekend"
-  }
 }
 
 provider "aws" {
