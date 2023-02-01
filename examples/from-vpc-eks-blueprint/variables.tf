@@ -35,12 +35,12 @@ variable "vpc_id" {
 
 variable "private_subnets" {
   description = "AWS private subnet IDs"
-  type        = list
+  type        = list(any)
 }
 
 variable "public_subnets" {
   description = "AWS public subnet IDs"
-  type        = list
+  type        = list(any)
 }
 
 variable "creator_email" {
