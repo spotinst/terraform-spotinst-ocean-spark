@@ -30,12 +30,12 @@ variable "aws_profile" {
 
 variable "vpc_name" {
   description = "Desired VPC Name"
-  type = string
+  type        = string
 }
 
 variable "vpc_cidr" {
   description = "Desired VPC CIDR"
-  type = string
+  type        = string
 }
 
 variable "azs" {

@@ -188,7 +188,7 @@ module "ocean-aws-k8s" {
 
   shutdown_hours = {
     is_enabled = true
-    time_windows = [ # Must be in GMT
+    time_windows = [         # Must be in GMT
       "Fri:23:30-Mon:13:30", # Weekends
       "Mon:23:30-Tue:13:30", # Weekday evenings
       "Tue:23:30-Wed:13:30",
@@ -227,7 +227,7 @@ module "ocean-controller" {
 }
 
 module "ocean-spark" {
-  source = "spotinst/ocean-spark/spotinst"
+  source  = "spotinst/ocean-spark/spotinst"
   version = "1.1.1"
 
   ocean_cluster_id = module.ocean-aws-k8s.ocean_id
