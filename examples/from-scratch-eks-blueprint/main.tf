@@ -174,7 +174,8 @@ resource "null_resource" "patience" {
 }
 
 module "ocean-aws-k8s" {
-  source = "spotinst/ocean-aws-k8s/spotinst"
+  source  = "spotinst/ocean-aws-k8s/spotinst"
+  version = "0.2.3"
 
   # Configuration
   cluster_name                = var.cluster_name
@@ -187,14 +188,8 @@ module "ocean-aws-k8s" {
   tags = local.tags
 
   shutdown_hours = {
-    is_enabled = true
-    time_windows = [         # Must be in GMT
-      "Fri:23:30-Mon:13:30", # Weekends
-      "Mon:23:30-Tue:13:30", # Weekday evenings
-      "Tue:23:30-Wed:13:30",
-      "Wed:23:30-Thu:13:30",
-      "Thu:23:30-Fri:13:30",
-    ]
+    time_windows = var.shutdown_time_windows,
+    is_enabled   = var.enable_shutdown_hours
   }
 
   depends_on = [
@@ -212,7 +207,8 @@ provider "spotinst" {
 }
 
 module "ocean-controller" {
-  source = "spotinst/ocean-controller/spotinst"
+  source  = "spotinst/ocean-controller/spotinst"
+  version = "0.41.0"
 
   # Credentials.
   spotinst_token   = var.spotinst_token

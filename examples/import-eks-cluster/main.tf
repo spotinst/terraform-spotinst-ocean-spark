@@ -21,7 +21,8 @@ provider "spotinst" {
 }
 
 module "ocean-aws-k8s" {
-  source = "spotinst/ocean-aws-k8s/spotinst"
+  source  = "spotinst/ocean-aws-k8s/spotinst"
+  version = "0.2.3"
 
   cluster_name                = var.cluster_name
   region                      = var.aws_region
@@ -30,6 +31,11 @@ module "ocean-aws-k8s" {
   security_groups             = [var.node_security_group_id]
 
   max_scale_down_percentage = 100
+
+  shutdown_hours = {
+    time_windows = var.shutdown_time_windows,
+    is_enabled   = var.enable_shutdown_hours
+  }
 
 }
 
@@ -40,7 +46,8 @@ provider "kubernetes" {
 }
 
 module "ocean-controller" {
-  source = "spotinst/ocean-controller/spotinst"
+  source  = "spotinst/ocean-controller/spotinst"
+  version = "0.41.0"
 
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account

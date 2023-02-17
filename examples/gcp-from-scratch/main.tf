@@ -87,6 +87,13 @@ resource "spotinst_ocean_gke_import" "ocean" {
   cluster_name          = google_container_cluster.cluster.name
   controller_cluster_id = var.cluster_name
   location              = var.region
+
+  scheduled_task {
+    shutdown_hours {
+      is_enabled   = var.enable_shutdown_hours
+      time_windows = var.shutdown_time_windows
+    }
+  }
 }
 
 data "google_client_config" "default" {}

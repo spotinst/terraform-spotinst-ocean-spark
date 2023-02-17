@@ -23,6 +23,13 @@ resource "spotinst_ocean_gke_import" "ocean" {
   cluster_name          = var.cluster_name
   controller_cluster_id = var.cluster_name
   location              = var.location
+
+  scheduled_task {
+    shutdown_hours {
+      is_enabled   = var.enable_shutdown_hours
+      time_windows = var.shutdown_time_windows
+    }
+  }
 }
 
 provider "kubernetes" {
