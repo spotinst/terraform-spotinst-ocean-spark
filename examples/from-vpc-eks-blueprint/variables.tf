@@ -47,3 +47,19 @@ variable "creator_email" {
   description = "Creator's email"
   type        = string
 }
+
+variable "shutdown_time_windows" {
+  type = list(string)
+  default = [
+    "Fri:23:30-Mon:13:30", # Weekends
+    "Mon:23:30-Tue:13:30", # Weekday evenings
+    "Tue:23:30-Wed:13:30",
+    "Wed:23:30-Thu:13:30",
+    "Thu:23:30-Fri:13:30",
+  ]
+}
+
+variable "enable_shutdown_hours" {
+  type    = bool
+  default = false
+}
