@@ -131,14 +131,14 @@ terraform import module.ocean-spark.spotinst_ocean_spark.example osc-abcd1234
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.0 |
-| <a name="requirement_spotinst"></a> [spotinst](#requirement\_spotinst) | ~> 1.90 |
+| <a name="requirement_spotinst"></a> [spotinst](#requirement\_spotinst) | ~> 1.101 |
 
 ### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.0 |
-| <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | ~> 1.90 |
+| <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | ~> 1.101 |
 
 ### Modules
 
@@ -171,6 +171,7 @@ No modules.
 | <a name="input_log_collection_collect_driver_logs"></a> [log\_collection\_collect\_driver\_logs](#input\_log\_collection\_collect\_driver\_logs) | Controls whether the Ocean Spark cluster will collect Spark driver logs | `bool` | `true` | no |
 | <a name="input_ocean_cluster_id"></a> [ocean\_cluster\_id](#input\_ocean\_cluster\_id) | Specifies the Ocean cluster identifier | `string` | n/a | yes |
 | <a name="input_ofas_managed_load_balancer"></a> [ofas\_managed\_load\_balancer](#input\_ofas\_managed\_load\_balancer) | Controls whether a load balancer managed by Ocean for Apache Spark will be provisioned for the cluster (deprecated: use ingress\_managed\_load\_balancer instead) | `bool` | `null` | no |
+| <a name="input_spark_additional_app_namespaces"></a> [spark\_additional\_app\_namespaces](#input\_spark\_additional\_app\_namespaces) | List of Kubernetes namespaces that should be configured to run Spark applications, in addition to the default 'spark-apps' namespace | `list(string)` | `[]` | no |
 | <a name="input_webhook_host_network_ports"></a> [webhook\_host\_network\_ports](#input\_webhook\_host\_network\_ports) | Assign a list of ports on the host networks for our system pods | `list(number)` | `[]` | no |
 | <a name="input_webhook_use_host_network"></a> [webhook\_use\_host\_network](#input\_webhook\_use\_host\_network) | Controls whether Ocean Spark system pods that expose webhooks will use the host network | `bool` | `false` | no |
 

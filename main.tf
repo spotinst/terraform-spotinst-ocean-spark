@@ -80,4 +80,8 @@ resource "spotinst_ocean_spark" "cluster" {
     use_host_network   = var.webhook_use_host_network
     host_network_ports = var.webhook_host_network_ports
   }
+
+  spark {
+    additional_app_namespaces = var.spark_additional_app_namespaces
+  }
 }

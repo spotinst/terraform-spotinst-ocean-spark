@@ -92,3 +92,14 @@ variable "webhook_host_network_ports" {
   description = "Assign a list of ports on the host networks for our system pods"
   default     = []
 }
+
+variable "spark_additional_app_namespaces" {
+  type        = list(string)
+  description = "List of Kubernetes namespaces that should be configured to run Spark applications, in addition to the default 'spark-apps' namespace"
+  default     = []
+
+  validation {
+    condition     = !contains(var.spark_additional_app_namespaces, "spark-apps")
+    error_message = "Error: spark_additional_app_namespaces cannot contain the default spark application namespace 'spark-apps'."
+  }
+}
