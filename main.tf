@@ -17,6 +17,10 @@ resource "kubernetes_service_account" "deployer" {
     name      = local.service_account_name
     namespace = local.spot_system_namespace
   }
+
+  depends_on = [
+    kubernetes_namespace.spot-system
+  ]
 }
 
 resource "kubernetes_cluster_role_binding" "deployer" {
@@ -34,6 +38,11 @@ resource "kubernetes_cluster_role_binding" "deployer" {
     name      = local.service_account_name
     namespace = local.spot_system_namespace
   }
+
+  depends_on = [
+    kubernetes_namespace.spot-system,
+    kubernetes_service_account.deployer
+  ]
 }
 
 resource "spotinst_ocean_spark" "cluster" {
