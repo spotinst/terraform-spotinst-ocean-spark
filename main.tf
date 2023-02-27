@@ -54,8 +54,11 @@ resource "spotinst_ocean_spark" "cluster" {
   }
 
   ingress {
+    controller {
+      managed = var.ingress_managed_controller
+    }
     load_balancer {
-      managed             = var.ofas_managed_load_balancer
+      managed             = try(var.ofas_managed_load_balancer, var.ingress_managed_load_balancer)
       target_group_arn    = var.ingress_load_balancer_target_group_arn
       service_annotations = var.ingress_load_balancer_service_annotations
     }
