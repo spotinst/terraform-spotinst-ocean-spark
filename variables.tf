@@ -21,11 +21,24 @@ variable "compute_use_taints" {
   default     = true
 }
 
+variable "ingress_managed_controller" {
+  type        = bool
+  description = "Controls whether an ingress controller managed by Ocean for Apache Spark will be installed on the cluster"
+  default     = true
+}
+
 variable "ofas_managed_load_balancer" {
+  type        = bool
+  description = "Controls whether a load balancer managed by Ocean for Apache Spark will be provisioned for the cluster (deprecated: use ingress_managed_load_balancer instead)"
+  default     = null
+}
+
+variable "ingress_managed_load_balancer" {
   type        = bool
   description = "Controls whether a load balancer managed by Ocean for Apache Spark will be provisioned for the cluster"
   default     = true
 }
+
 variable "ingress_load_balancer_service_annotations" {
   type        = map(string)
   description = "Annotations that will be added to the load balancer service, allowing for customization of the load balancer"
