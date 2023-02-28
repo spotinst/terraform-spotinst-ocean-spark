@@ -103,3 +103,9 @@ variable "spark_additional_app_namespaces" {
     error_message = "Error: spark_additional_app_namespaces cannot contain the default spark application namespace 'spark-apps'."
   }
 }
+
+variable "attach_dedicated_virtual_node_groups" {
+  type        = list(string)
+  description = "List of virtual node group IDs to attach to the cluster"
+  default     = []
+}

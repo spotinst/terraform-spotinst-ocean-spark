@@ -85,3 +85,11 @@ resource "spotinst_ocean_spark" "cluster" {
     additional_app_namespaces = var.spark_additional_app_namespaces
   }
 }
+
+
+resource "spotinst_ocean_spark_virtual_node_group" "this" {
+  for_each = toset(var.attach_dedicated_virtual_node_groups)
+
+  virtual_node_group_id  = each.key
+  ocean_spark_cluster_id = spotinst_ocean_spark.cluster.id
+}
