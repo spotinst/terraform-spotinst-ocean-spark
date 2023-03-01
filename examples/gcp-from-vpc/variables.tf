@@ -14,6 +14,11 @@ variable "cluster_name" {
   type = string
 }
 
+variable "cluster_version" {
+  type    = string
+  default = "1.23"
+}
+
 variable "region" {
   type = string
 }

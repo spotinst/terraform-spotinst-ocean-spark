@@ -52,7 +52,7 @@ resource "google_compute_router_nat" "this" {
 
 resource "google_container_cluster" "cluster" {
   name               = var.cluster_name
-  min_master_version = "1.22"
+  min_master_version = var.cluster_version
 
   location = var.region
 
