@@ -2,8 +2,6 @@
 
 A Terraform module to install the [Ocean for Apache Spark](https://spot.io/products/ocean-apache-spark/) data platform.
 
-### :warning: Ocean for Apache Spark is currently only available on AWS and GCP.
-
 ## Introduction
 
 This module imports an existing Ocean cluster into Ocean Spark.
