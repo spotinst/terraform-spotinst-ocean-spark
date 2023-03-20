@@ -18,6 +18,11 @@ variable "cluster_name" {
   type = string
 }
 
+variable "cluster_version" {
+  type    = string
+  default = "1.25"
+}
+
 variable "vpc_name" {
   type = string
 }
