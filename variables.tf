@@ -109,3 +109,14 @@ variable "attach_dedicated_virtual_node_groups" {
   description = "List of virtual node group IDs to attach to the cluster"
   default     = []
 }
+
+variable "deployer_namespace" {
+  type        = string
+  description = "The namespace Ocean Spark deployer jobs will run in (must be either 'spot-system' or 'kube-system'). The deployer jobs are used to manage Ocean Spark cluster components."
+  default     = "spot-system"
+
+  validation {
+    condition     = contains(["spot-system", "kube-system"], var.deployer_namespace)
+    error_message = "Error: deployer_namespace should either be spot-system or kube-system."
+  }
+}
