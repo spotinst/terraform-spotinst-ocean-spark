@@ -5,7 +5,7 @@ locals {
 }
 
 resource "kubernetes_namespace" "spot-system" {
-  count = var.create_cluster ? 1 : 0
+  count = var.create_cluster && var.deployer_namespace == local.spot_system_namespace ? 1 : 0
   metadata {
     name = local.spot_system_namespace
   }
@@ -15,12 +15,9 @@ resource "kubernetes_service_account" "deployer" {
   count = var.create_cluster ? 1 : 0
   metadata {
     name      = local.service_account_name
-    namespace = local.spot_system_namespace
+    namespace = var.deployer_namespace
   }
 
-  depends_on = [
-    kubernetes_namespace.spot-system
-  ]
 }
 
 resource "kubernetes_cluster_role_binding" "deployer" {
@@ -36,11 +33,10 @@ resource "kubernetes_cluster_role_binding" "deployer" {
   subject {
     kind      = "ServiceAccount"
     name      = local.service_account_name
-    namespace = local.spot_system_namespace
+    namespace = var.deployer_namespace
   }
 
   depends_on = [
-    kubernetes_namespace.spot-system,
     kubernetes_service_account.deployer
   ]
 }
@@ -84,6 +80,11 @@ resource "spotinst_ocean_spark" "cluster" {
   spark {
     additional_app_namespaces = var.spark_additional_app_namespaces
   }
+
+  depends_on = [
+    kubernetes_service_account.deployer,
+    kubernetes_cluster_role_binding.deployer,
+  ]
 }
 
 
