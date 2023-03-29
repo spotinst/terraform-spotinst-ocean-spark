@@ -102,6 +102,20 @@ Follow those steps:
 
 ## Migration Guide
 
+### v2 migration guide
+
+By default the Ocean Spark deployer jobs now run in the kube-system namespace.
+
+To avoid issues for existing clusters you will need to set the following line:
+```diff
+module "ocean-spark" {
+  "spotinst/ocean-spark/spotinst"
+
+  ocean_cluster_id   = var.ocean_cluster_id
++ deployer_namespace = "spot-system"
+}
+```
+
 ###  v1 migration guide
 
 This migration revolves around 1 topic:
@@ -160,7 +174,7 @@ No modules.
 | <a name="input_compute_create_vngs"></a> [compute\_create\_vngs](#input\_compute\_create\_vngs) | Controls whether dedicated Ocean Spark VNGs will be created by the cluster creation process | `bool` | `true` | no |
 | <a name="input_compute_use_taints"></a> [compute\_use\_taints](#input\_compute\_use\_taints) | Controls whether the Ocean Spark cluster will use taints to schedule workloads | `bool` | `true` | no |
 | <a name="input_create_cluster"></a> [create\_cluster](#input\_create\_cluster) | Controls whether the Ocean for Apache Spark cluster should be created (it affects all resources) | `bool` | `true` | no |
-| <a name="input_deployer_namespace"></a> [deployer\_namespace](#input\_deployer\_namespace) | The namespace Ocean Spark deployer jobs will run in (must be either 'spot-system' or 'kube-system'). The deployer jobs are used to manage Ocean Spark cluster components. | `string` | `"spot-system"` | no |
+| <a name="input_deployer_namespace"></a> [deployer\_namespace](#input\_deployer\_namespace) | The namespace Ocean Spark deployer jobs will run in (must be either 'spot-system' or 'kube-system'). The deployer jobs are used to manage Ocean Spark cluster components. | `string` | `"kube-system"` | no |
 | <a name="input_enable_custom_endpoint"></a> [enable\_custom\_endpoint](#input\_enable\_custom\_endpoint) | Controls whether the Ocean for Apache Spark control plane address the cluster using a custom endpoint. | `bool` | `false` | no |
 | <a name="input_enable_private_link"></a> [enable\_private\_link](#input\_enable\_private\_link) | Controls whether the Ocean for Apache Spark control plane address the cluster via an AWS Private Link | `bool` | `false` | no |
 | <a name="input_ingress_custom_endpoint_address"></a> [ingress\_custom\_endpoint\_address](#input\_ingress\_custom\_endpoint\_address) | The address the Ocean for Apache Spark control plane will use when addressing the cluster when custom endpoint is enabled | `string` | `null` | no |
