@@ -305,7 +305,7 @@ module "ocean-spark" {
 
   ocean_cluster_id = module.ocean-aws-k8s.ocean_id
 
-  ofas_managed_load_balancer             = false
+  ingress_managed_load_balancer          = false
   ingress_load_balancer_target_group_arn = aws_lb_target_group.this.arn
 
 
