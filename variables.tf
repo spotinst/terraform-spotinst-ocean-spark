@@ -27,12 +27,6 @@ variable "ingress_managed_controller" {
   default     = true
 }
 
-variable "ofas_managed_load_balancer" {
-  type        = bool
-  description = "Controls whether a load balancer managed by Ocean for Apache Spark will be provisioned for the cluster (deprecated: use ingress_managed_load_balancer instead)"
-  default     = null
-}
-
 variable "ingress_managed_load_balancer" {
   type        = bool
   description = "Controls whether a load balancer managed by Ocean for Apache Spark will be provisioned for the cluster"
