@@ -216,5 +216,7 @@ No modules.
 
 ### Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_ocean_spark_id"></a> [ocean\_spark\_id](#output\_ocean\_spark\_id) | The Ocean Spark cluster Id |
 <!-- END_TF_DOCS -->
