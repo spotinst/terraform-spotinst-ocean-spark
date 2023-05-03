@@ -288,7 +288,7 @@ provider "kubernetes" {
 
 module "ocean-controller" {
   source  = "spotinst/ocean-controller/spotinst"
-  version = "0.41.0"
+  version = "0.43.0"
 
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account
@@ -311,4 +311,9 @@ module "ocean-spark" {
 
   enable_private_link                           = true
   ingress_private_link_endpoint_service_address = aws_vpc_endpoint_service.this.service_name
+
+  depends_on = [
+    module.ocean-aws-k8s,
+    module.ocean-controller,
+  ]
 }

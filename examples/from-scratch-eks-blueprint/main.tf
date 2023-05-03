@@ -208,7 +208,7 @@ provider "spotinst" {
 
 module "ocean-controller" {
   source  = "spotinst/ocean-controller/spotinst"
-  version = "0.41.0"
+  version = "0.43.0"
 
   # Credentials.
   spotinst_token   = var.spotinst_token
@@ -223,12 +223,12 @@ module "ocean-controller" {
 }
 
 module "ocean-spark" {
-  source  = "spotinst/ocean-spark/spotinst"
-  version = "1.1.1"
+  source = "../.."
 
   ocean_cluster_id = module.ocean-aws-k8s.ocean_id
 
   depends_on = [
-    module.ocean-aws-k8s
+    module.ocean-aws-k8s,
+    module.ocean-controller,
   ]
 }
