@@ -63,7 +63,8 @@ provider "kubernetes" {
 
 ### Deploy Ocean Controller Pod into Cluster ###
 module "ocean-controller" {
-  source = "spotinst/ocean-controller/spotinst"
+  source  = "spotinst/ocean-controller/spotinst"
+  version = "0.43.0"
 
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account
@@ -78,4 +79,9 @@ module "ocean-spark" {
   source = "../.."
 
   ocean_cluster_id = spotinst_ocean_gke_import.ocean.id
+
+  depends_on = [
+    spotinst_ocean_gke_import.ocean,
+    module.ocean-controller,
+  ]
 }

@@ -36,7 +36,8 @@ provider "kubernetes" {
 }
 
 module "ocean-controller" {
-  source = "spotinst/ocean-controller/spotinst"
+  source  = "spotinst/ocean-controller/spotinst"
+  version = "0.43.0"
 
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account
@@ -94,5 +95,8 @@ module "ocean-spark" {
 
   ocean_cluster_id = module.ocean-aks-np.ocean_id
 
-  depends_on = [module.ocean-aks-np]
+  depends_on = [
+    module.ocean-aks-np,
+    module.ocean-controller,
+  ]
 }
