@@ -71,7 +71,18 @@ variable "ingress_private_link_endpoint_service_address" {
 
 variable "log_collection_collect_driver_logs" {
   type        = bool
-  description = "Controls whether the Ocean Spark cluster will collect Spark driver logs"
+  description = "Controls whether the Ocean Spark cluster will collect Spark driver logs (Deprecated: use log_collection_collect_app_logs instead)"
+  default     = null
+}
+
+data "validation_warning" "log_collection_collect_driver_logs" {
+  condition = var.log_collection_collect_driver_logs != null
+  summary   = "variable log_collection_collect_driver_logs is depreacted, use log_collection_collect_app_logs instead"
+}
+
+variable "log_collection_collect_app_logs" {
+  type        = bool
+  description = "Controls whether the Ocean Spark cluster will collect Spark driver/executor logs"
   default     = true
 }
 

@@ -168,14 +168,16 @@ terraform import module.ocean-spark.spotinst_ocean_spark.example osc-abcd1234
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.0 |
-| <a name="requirement_spotinst"></a> [spotinst](#requirement\_spotinst) | ~> 1.101 |
+| <a name="requirement_spotinst"></a> [spotinst](#requirement\_spotinst) | >= 1.115.0, < 1.123.0 |
+| <a name="requirement_validation"></a> [validation](#requirement\_validation) | 1.0.0 |
 
 ### Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.0 |
-| <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | ~> 1.101 |
+| <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | >= 1.115.0, < 1.123.0 |
+| <a name="provider_validation"></a> [validation](#provider\_validation) | 1.0.0 |
 
 ### Modules
 
@@ -190,6 +192,7 @@ No modules.
 | [kubernetes_service_account.deployer](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_account) | resource |
 | [spotinst_ocean_spark.cluster](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_spark) | resource |
 | [spotinst_ocean_spark_virtual_node_group.this](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_spark_virtual_node_group) | resource |
+| [validation_warning.log_collection_collect_driver_logs](https://registry.terraform.io/providers/tlkamp/validation/1.0.0/docs/data-sources/warning) | data source |
 
 ### Inputs
 
@@ -208,7 +211,8 @@ No modules.
 | <a name="input_ingress_managed_controller"></a> [ingress\_managed\_controller](#input\_ingress\_managed\_controller) | Controls whether an ingress controller managed by Ocean for Apache Spark will be installed on the cluster | `bool` | `true` | no |
 | <a name="input_ingress_managed_load_balancer"></a> [ingress\_managed\_load\_balancer](#input\_ingress\_managed\_load\_balancer) | Controls whether a load balancer managed by Ocean for Apache Spark will be provisioned for the cluster | `bool` | `true` | no |
 | <a name="input_ingress_private_link_endpoint_service_address"></a> [ingress\_private\_link\_endpoint\_service\_address](#input\_ingress\_private\_link\_endpoint\_service\_address) | The name of the VPC Endpoint Service the Ocean for Apache Spark control plane should bind to when privatelink is enabled | `string` | `null` | no |
-| <a name="input_log_collection_collect_driver_logs"></a> [log\_collection\_collect\_driver\_logs](#input\_log\_collection\_collect\_driver\_logs) | Controls whether the Ocean Spark cluster will collect Spark driver logs | `bool` | `true` | no |
+| <a name="input_log_collection_collect_app_logs"></a> [log\_collection\_collect\_app\_logs](#input\_log\_collection\_collect\_app\_logs) | Controls whether the Ocean Spark cluster will collect Spark driver/executor logs | `bool` | `true` | no |
+| <a name="input_log_collection_collect_driver_logs"></a> [log\_collection\_collect\_driver\_logs](#input\_log\_collection\_collect\_driver\_logs) | Controls whether the Ocean Spark cluster will collect Spark driver logs (Deprecated: use log\_collection\_collect\_app\_logs instead) | `bool` | `null` | no |
 | <a name="input_ocean_cluster_id"></a> [ocean\_cluster\_id](#input\_ocean\_cluster\_id) | Specifies the Ocean cluster identifier | `string` | n/a | yes |
 | <a name="input_spark_additional_app_namespaces"></a> [spark\_additional\_app\_namespaces](#input\_spark\_additional\_app\_namespaces) | List of Kubernetes namespaces that should be configured to run Spark applications, in addition to the default 'spark-apps' namespace | `list(string)` | `[]` | no |
 | <a name="input_webhook_host_network_ports"></a> [webhook\_host\_network\_ports](#input\_webhook\_host\_network\_ports) | Assign a list of ports on the host networks for our system pods | `list(number)` | `[]` | no |
