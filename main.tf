@@ -41,6 +41,10 @@ resource "kubernetes_cluster_role_binding" "deployer" {
   ]
 }
 
+locals {
+  collect_app_logs = coalesce(var.log_collection_collect_driver_logs, var.log_collection_collect_app_logs)
+}
+
 resource "spotinst_ocean_spark" "cluster" {
   ocean_cluster_id = var.ocean_cluster_id
 
@@ -69,7 +73,7 @@ resource "spotinst_ocean_spark" "cluster" {
   }
 
   log_collection {
-    collect_driver_logs = var.log_collection_collect_driver_logs
+    collect_app_logs = local.collect_app_logs
   }
 
   webhook {
