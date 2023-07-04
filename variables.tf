@@ -125,3 +125,24 @@ variable "deployer_namespace" {
     error_message = "Error: deployer_namespace should either be spot-system or kube-system."
   }
 }
+
+variable "cluster_config" {
+  description = "Configuration for Ocean Kubernetes cluster"
+  type = object({
+    cluster_name               = string
+    certificate_authority_data = string
+    server_endpoint            = string
+    token                      = optional(string)
+    client_certificate         = optional(string)
+    client_key                 = optional(string)
+  })
+  sensitive = true
+
+  validation {
+    condition = (
+      can(var.cluster_config.token) ||
+      (can(var.cluster_config.client_certificate) && can(var.cluster_config.client_key))
+    )
+    error_message = "Either 'token' must be provided, or both 'client_certificate' and 'client_key' must be provided."
+  }
+}

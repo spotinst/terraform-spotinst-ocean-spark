@@ -95,6 +95,14 @@ module "ocean-spark" {
 
   ocean_cluster_id = module.ocean-aks-np.ocean_id
 
+  cluster_config = {
+    cluster_name               = var.cluster_name
+    certificate_authority_data = local.aks_admin.cluster_ca_certificate
+    server_endpoint            = local.aks_admin.host
+    client_certificate         = local.aks_admin.client_certificate
+    client_key                 = local.aks_admin.client_key
+  }
+
   depends_on = [
     module.ocean-aks-np,
     module.ocean-controller,

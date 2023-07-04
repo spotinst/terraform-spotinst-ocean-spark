@@ -10,6 +10,7 @@ provider "azurerm" {
   use_cli = false
 }
 
+
 resource "azurerm_resource_group" "this" {
   location = var.location
   name     = "${var.cluster_name}-rg"
@@ -42,7 +43,7 @@ module "aks" {
 
   prefix              = "oceanspark"
   resource_group_name = azurerm_resource_group.this.name
-  sku_tier            = "Paid"
+  sku_tier            = "Standard"
   cluster_name        = var.cluster_name
   kubernetes_version  = var.cluster_version
   vnet_subnet_id      = azurerm_subnet.this.id
@@ -91,7 +92,7 @@ module "ocean-controller" {
 
 module "ocean-aks-np" {
   source  = "spotinst/ocean-aks-np-k8s/spotinst"
-  version = "0.2.0"
+  version = "0.5.0"
 
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account
@@ -106,8 +107,11 @@ module "ocean-aks-np" {
   autoscaler_resource_limits_max_vcpu       = 20000
   autoscaler_resource_limits_max_memory_gib = 100000
   autoscaler_max_scale_down_percentage      = 10
-  autoscaler_headroom_automatic_is_enabled  = true
   autoscaler_headroom_automatic_percentage  = 5
+  autoscale_headrooms_cpu_per_unit          = 6
+  autoscale_headrooms_memory_per_unit       = 10
+  autoscale_headrooms_gpu_per_unit          = 0
+  autoscale_headrooms_num_of_units          = 10
   health_grace_period                       = 600
   max_pods_per_node                         = 110
   enable_node_public_ip                     = false
@@ -120,6 +124,14 @@ module "ocean-aks-np" {
   fallback_to_ondemand                      = true
   availability_zones                        = [1, 2, 3, ]
   tags                                      = var.tags
+  vmsizes_filters_min_vcpu                  = 2
+  vmsizes_filters_max_vcpu                  = 16
+  vmsizes_filters_min_memory_gib            = 10
+  vmsizes_filters_max_memory_gib            = 18
+  vmsizes_filters_series                    = ["D v3", "Dds_v4", "Dsv2"]
+  vmsizes_filters_architectures             = ["X86_64"]
+  scheduling_shutdown_hours_time_windows    = ["Sat:08:00-Sun:08:00"]
+  scheduling_shutdown_hours_is_enabled      = true
 }
 
 
@@ -140,4 +152,12 @@ module "ocean-spark" {
     module.ocean-aks-np,
     module.ocean-controller,
   ]
+
+  cluster_config = {
+    cluster_name               = var.cluster_name
+    certificate_authority_data = module.aks.admin_cluster_ca_certificate
+    server_endpoint            = module.aks.admin_host
+    client_certificate         = module.aks.admin_client_certificate
+    client_key                 = module.aks.admin_client_key
+  }
 }
