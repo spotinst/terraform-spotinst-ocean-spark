@@ -64,6 +64,13 @@ module "ocean-spark" {
 
   ocean_cluster_id = module.ocean-aws-k8s.ocean_id
 
+  cluster_config = {
+    cluster_name               = var.cluster_name
+    certificate_authority_data = data.aws_eks_cluster.this.certificate_authority[0].data
+    server_endpoint            = data.aws_eks_cluster.this.endpoint
+    token                      = data.aws_eks_cluster_auth.this.token
+  }
+
   depends_on = [
     module.ocean-aws-k8s,
     module.ocean-controller,

@@ -312,6 +312,13 @@ module "ocean-spark" {
   enable_private_link                           = true
   ingress_private_link_endpoint_service_address = aws_vpc_endpoint_service.this.service_name
 
+  cluster_config = {
+    cluster_name               = module.eks.cluster_id
+    certificate_authority_data = module.eks.cluster_certificate_authority_data
+    server_endpoint            = module.eks.cluster_endpoint
+    token                      = data.aws_eks_cluster_auth.this.token
+  }
+
   depends_on = [
     module.ocean-aws-k8s,
     module.ocean-controller,

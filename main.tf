@@ -1,48 +1,54 @@
 locals {
-  spot_system_namespace = "spot-system"
-  service_account_name  = "bigdata-deployer"
-  role_binding_name     = "bigdata-deployer-admin"
+  collect_app_logs   = coalesce(var.log_collection_collect_driver_logs, var.log_collection_collect_app_logs)
+  ofas_deployer_path = "https://spotinst-public.s3.amazonaws.com/integrations/kubernetes/ocean-spark/templates/ocean-spark-deploy.yaml"
+  kubeconfig = yamlencode({
+    apiVersion      = "v1"
+    kind            = "Config"
+    current-context = "terraform"
+    clusters = [{
+      name = var.cluster_config.cluster_name
+      cluster = {
+        certificate-authority-data = var.cluster_config.certificate_authority_data
+        server                     = var.cluster_config.server_endpoint
+      }
+    }]
+    contexts = [{
+      name = "terraform"
+      context = {
+        cluster = var.cluster_config.cluster_name
+        user    = "terraform"
+      }
+    }]
+    users = [{
+      name = "terraform"
+      user = {
+        token              = var.cluster_config.token
+        client-certificate = var.cluster_config.client_certificate
+        client-key         = var.cluster_config.client_key
+      }
+    }]
+  })
 }
 
-resource "kubernetes_namespace" "spot-system" {
-  count = var.create_cluster && var.deployer_namespace == local.spot_system_namespace ? 1 : 0
-  metadata {
-    name = local.spot_system_namespace
-  }
-}
-
-resource "kubernetes_service_account" "deployer" {
-  count = var.create_cluster ? 1 : 0
-  metadata {
-    name      = local.service_account_name
-    namespace = var.deployer_namespace
+resource "null_resource" "apply_kubernetes_manifest" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      cat <<EOF > cluster_kubeconfig.yaml
+      ${local.kubeconfig}
+      EOF
+    EOT
   }
 
-}
-
-resource "kubernetes_cluster_role_binding" "deployer" {
-  count = var.create_cluster ? 1 : 0
-  metadata {
-    name = local.role_binding_name
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = "cluster-admin"
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = local.service_account_name
-    namespace = var.deployer_namespace
+  provisioner "local-exec" {
+    command = <<EOT
+      bash -c '
+      curl  ${local.ofas_deployer_path} | kubectl --kubeconfig="cluster_kubeconfig.yaml" apply -f -'
+    EOT
   }
 
-  depends_on = [
-    kubernetes_service_account.deployer
-  ]
-}
-
-locals {
-  collect_app_logs = coalesce(var.log_collection_collect_driver_logs, var.log_collection_collect_app_logs)
+  provisioner "local-exec" {
+    command = "rm cluster_kubeconfig.yaml"
+  }
 }
 
 resource "spotinst_ocean_spark" "cluster" {
@@ -85,12 +91,8 @@ resource "spotinst_ocean_spark" "cluster" {
     additional_app_namespaces = var.spark_additional_app_namespaces
   }
 
-  depends_on = [
-    kubernetes_service_account.deployer,
-    kubernetes_cluster_role_binding.deployer,
-  ]
+  depends_on = [null_resource.apply_kubernetes_manifest]
 }
-
 
 resource "spotinst_ocean_spark_virtual_node_group" "this" {
   for_each = toset(var.attach_dedicated_virtual_node_groups)

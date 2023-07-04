@@ -197,7 +197,6 @@ module "ocean-controller" {
 ################################################################################
 # Import Ocean cluster into Ocean Spark
 ################################################################################
-
 module "ocean-spark" {
   source = "../.."
 
@@ -207,4 +206,11 @@ module "ocean-spark" {
     module.ocean-aws-k8s,
     module.ocean-controller,
   ]
+
+  cluster_config = {
+    cluster_name               = module.eks.cluster_id
+    certificate_authority_data = module.eks.cluster_certificate_authority_data
+    server_endpoint            = module.eks.cluster_endpoint
+    token                      = data.aws_eks_cluster_auth.this.token
+  }
 }

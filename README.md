@@ -2,7 +2,7 @@
 
 A Terraform module to install the [Ocean for Apache Spark](https://spot.io/products/ocean-apache-spark/) data platform.
 
-## Introduction
+## *Introduction*
 
 This module imports an existing Ocean cluster into Ocean Spark.
 
@@ -10,7 +10,7 @@ This module imports an existing Ocean cluster into Ocean Spark.
 * Existing EKS/GKE/AKS Cluster
 * EKS/GKE/AKS cluster integrated with Spot Ocean
 
-### Usage
+## *Usage*
 ```hcl
 provider "spotinst" {
   token   = var.spotinst_token
@@ -18,13 +18,20 @@ provider "spotinst" {
 }
 
 module "ocean-spark" {
-  "spotinst/ocean-spark/spotinst"
+  source = "spotinst/ocean-spark/spotinst"
 
   ocean_cluster_id = var.ocean_cluster_id
 }
 ```
 
-### Examples
+##  *Upgrade guides*
+- [Upgrade to v3.x.](/docs/UPGRADE-v3.md)
+- [Upgrade to v2.x.](/docs/UPGRADE-v2.md)
+- [Upgrade to v1.x](/docs/UPGRADE-v1.md)
+
+
+## *Examples*
+
 It can be combined with other Terraform modules to support a number of installation methods for Ocean Spark:
 1. Create an Ocean Spark cluster from scratch in your AWS account
 2. Create an Ocean Spark Cluster from scratch in your AWS account with AWS Private Link support.
@@ -121,43 +128,6 @@ Folder [`examples/import-ocean-cluster/`](https://github.com/spotinst/terraform-
 
 3- Once the script is completed with success, you can now run `terraform destroy`
 
-## Migration Guide
-
-### v2 migration guide
-
-#### By default the Ocean Spark deployer jobs now run in the kube-system namespace.
-
-To avoid issues for existing clusters you will need to set the following line:
-```diff
-module "ocean-spark" {
-  "spotinst/ocean-spark/spotinst"
-
-  ocean_cluster_id   = var.ocean_cluster_id
-+ deployer_namespace = "spot-system"
-}
-```
-
-#### Deprecated `ofas_managed_load_balancer` variable has been deleted
-
-Use `ingress_managed_load_balancer` instead
-
-###  v1 migration guide
-
-This migration revolves around 1 topic:
-
-- The use of the `spotinst_ocean_spark` resource to manage the cluster state instead of relying on a `kubernetes job` on the 1st apply
-
-#### Steps
-
-1- Upgrade `spotinst provider` to `>= 1.89`
-
-2- [Retrieve from the UI](https://console.spotinst.com/ocean/spark/clusters) your Ocean Spark `Cluster ID`
-
-3- Import the resource into your `terraform state`
-```
-terraform import module.ocean-spark.spotinst_ocean_spark.example osc-abcd1234
-```
-
 
 ## Terraform module documentation
 
@@ -175,7 +145,7 @@ terraform import module.ocean-spark.spotinst_ocean_spark.example osc-abcd1234
 
 | Name | Version |
 |------|---------|
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | >= 1.115.0, < 1.123.0 |
 | <a name="provider_validation"></a> [validation](#provider\_validation) | 1.0.0 |
 
@@ -187,9 +157,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [kubernetes_cluster_role_binding.deployer](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/cluster_role_binding) | resource |
-| [kubernetes_namespace.spot-system](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
-| [kubernetes_service_account.deployer](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/service_account) | resource |
+| [null_resource.apply_kubernetes_manifest](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [spotinst_ocean_spark.cluster](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_spark) | resource |
 | [spotinst_ocean_spark_virtual_node_group.this](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_spark_virtual_node_group) | resource |
 | [validation_warning.log_collection_collect_driver_logs](https://registry.terraform.io/providers/tlkamp/validation/1.0.0/docs/data-sources/warning) | data source |
@@ -199,6 +167,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_attach_dedicated_virtual_node_groups"></a> [attach\_dedicated\_virtual\_node\_groups](#input\_attach\_dedicated\_virtual\_node\_groups) | List of virtual node group IDs to attach to the cluster | `list(string)` | `[]` | no |
+| <a name="input_cluster_config"></a> [cluster\_config](#input\_cluster\_config) | Configuration for Ocean Kubernetes cluster | <pre>object({<br>    cluster_name               = string<br>    certificate_authority_data = string<br>    server_endpoint            = string<br>    token                      = optional(string)<br>    client_certificate         = optional(string)<br>    client_key                 = optional(string)<br>  })</pre> | n/a | yes |
 | <a name="input_compute_create_vngs"></a> [compute\_create\_vngs](#input\_compute\_create\_vngs) | Controls whether dedicated Ocean Spark VNGs will be created by the cluster creation process | `bool` | `true` | no |
 | <a name="input_compute_use_taints"></a> [compute\_use\_taints](#input\_compute\_use\_taints) | Controls whether the Ocean Spark cluster will use taints to schedule workloads | `bool` | `true` | no |
 | <a name="input_create_cluster"></a> [create\_cluster](#input\_create\_cluster) | Controls whether the Ocean for Apache Spark cluster should be created (it affects all resources) | `bool` | `true` | no |

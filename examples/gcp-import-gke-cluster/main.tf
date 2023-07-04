@@ -64,4 +64,11 @@ module "ocean-spark" {
     spotinst_ocean_gke_import.ocean,
     module.ocean-controller,
   ]
+
+  cluster_config = {
+    cluster_name               = data.google_container_cluster.gke.name
+    certificate_authority_data = data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate
+    server_endpoint            = "https://${data.google_container_cluster.gke.endpoint}"
+    token                      = data.google_client_config.default.access_token
+  }
 }
