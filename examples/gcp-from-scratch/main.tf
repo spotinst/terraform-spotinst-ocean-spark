@@ -88,6 +88,8 @@ resource "spotinst_ocean_gke_import" "ocean" {
   controller_cluster_id = var.cluster_name
   location              = var.region
 
+  root_volume_type = "pd-ssd"
+
   scheduled_task {
     shutdown_hours {
       is_enabled   = var.enable_shutdown_hours
