@@ -57,6 +57,8 @@ resource "aws_lb" "this" {
   load_balancer_type = "network"
   subnets            = module.vpc.private_subnets
 
+  security_groups = [aws_security_group.this.id]
+
   enable_deletion_protection       = false
   enable_cross_zone_load_balancing = true
 
@@ -74,11 +76,12 @@ resource "aws_vpc_endpoint_service_allowed_principal" "service_to_client" {
 }
 
 resource "aws_lb_target_group" "this" {
-  name        = "${var.cluster_name}-nlb-tg"
-  port        = var.target_group.Port
-  target_type = "ip"
-  protocol    = var.target_group.Protocol
-  vpc_id      = module.vpc.vpc_id
+  name               = "${var.cluster_name}-nlb-tg"
+  port               = 443
+  target_type        = "ip"
+  protocol           = "tcp"
+  vpc_id             = module.vpc.vpc_id
+  preserve_client_ip = "true"
 
   depends_on = [
     aws_lb.this
@@ -88,8 +91,8 @@ resource "aws_lb_target_group" "this" {
 
 resource "aws_lb_listener" "this" {
   load_balancer_arn = aws_lb.this.arn
-  protocol          = var.target_group.Protocol
-  port              = var.target_group.Port
+  protocol          = "tcp"
+  port              = 443
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.this.arn
@@ -97,17 +100,26 @@ resource "aws_lb_listener" "this" {
 }
 
 resource "aws_security_group" "this" {
-  description = "Allow connection between NLB and target"
+  description = "Allow inbound/outbound traffic between NLB and OfAS VPC"
   vpc_id      = module.vpc.vpc_id
 }
 
-resource "aws_security_group_rule" "ingress" {
+resource "aws_security_group_rule" "egress" {
   security_group_id = aws_security_group.this.id
-  from_port         = var.target_group.Port
-  to_port           = var.target_group.Port
-  protocol          = var.target_group.Protocol
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "-1"
+  type              = "egress"
+  cidr_blocks       = [var.vpc_cidr]
+}
+
+resource "aws_security_group_rule" "ingress_https" {
+  security_group_id = aws_security_group.this.id
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   type              = "ingress"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = [var.vpc_cidr]
 }
 
 
