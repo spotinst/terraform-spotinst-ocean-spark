@@ -195,6 +195,67 @@ module "ocean-controller" {
 }
 
 ################################################################################
+# Install EKS ADD-ONs with necessary IAM resources
+# (ebs-csi, vpc-cni, core-dns, proxy)
+################################################################################
+
+module "vpc_cni_ipv4_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "5.17.0"
+
+  role_name             = "${var.cluster_name}-vpc-cni"
+  attach_vpc_cni_policy = true
+  vpc_cni_enable_ipv4   = true
+  vpc_cni_enable_ipv6   = true
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-node"]
+    }
+  }
+
+}
+
+data "aws_eks_addon_version" "vpc-cni" {
+  addon_name         = "vpc-cni"
+  kubernetes_version = var.cluster_version
+}
+
+data "aws_eks_addon_version" "kube-proxy" {
+  addon_name         = "kube-proxy"
+  kubernetes_version = var.cluster_version
+}
+
+data "aws_eks_addon_version" "core-dns" {
+  addon_name         = "coredns"
+  kubernetes_version = var.cluster_version
+}
+
+resource "aws_eks_addon" "vpc-cni" {
+  cluster_name      = data.aws_eks_cluster.this.id
+  addon_name        = "vpc-cni"
+  addon_version     = data.aws_eks_addon_version.vpc-cni.version
+  resolve_conflicts = "OVERWRITE"
+
+  service_account_role_arn = module.vpc_cni_ipv4_irsa_role.iam_role_arn
+}
+
+resource "aws_eks_addon" "core-dns" {
+  cluster_name      = module.eks.cluster_id
+  addon_name        = "coredns"
+  addon_version     = data.aws_eks_addon_version.core-dns.version
+  resolve_conflicts = "OVERWRITE"
+}
+
+resource "aws_eks_addon" "kube-proxy" {
+  cluster_name      = module.eks.cluster_id
+  addon_name        = "kube-proxy"
+  addon_version     = data.aws_eks_addon_version.kube-proxy.version
+  resolve_conflicts = "OVERWRITE"
+}
+
+################################################################################
 # Import Ocean cluster into Ocean Spark
 ################################################################################
 module "ocean-spark" {
