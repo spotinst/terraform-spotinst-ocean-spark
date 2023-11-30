@@ -18,7 +18,7 @@ locals {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 2.70"
+  version = "~> 5.2.0"
 
   create_vpc           = true
   name                 = var.vpc_name
@@ -30,7 +30,6 @@ module "vpc" {
   single_nat_gateway   = true
   enable_dns_hostnames = true
   enable_dns_support   = true
-  enable_s3_endpoint   = true
 
   tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared",
@@ -44,6 +43,21 @@ module "vpc" {
   private_subnet_tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"           = "1"
+  }
+}
+
+module "vpc_endpoints" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+  version = "~> 5.2.0"
+
+  vpc_id = module.vpc.vpc_id
+
+  endpoints = {
+    s3 = {
+      service      = "s3"
+      service_type = "Gateway"
+      tags         = { Name = "s3-vpc-endpoint" }
+    },
   }
 }
 
@@ -233,26 +247,26 @@ data "aws_eks_addon_version" "core-dns" {
 }
 
 resource "aws_eks_addon" "vpc-cni" {
-  cluster_name      = data.aws_eks_cluster.this.id
-  addon_name        = "vpc-cni"
-  addon_version     = data.aws_eks_addon_version.vpc-cni.version
-  resolve_conflicts = "OVERWRITE"
+  cluster_name                = module.eks.cluster_id
+  addon_name                  = "vpc-cni"
+  addon_version               = data.aws_eks_addon_version.vpc-cni.version
+  resolve_conflicts_on_update = "OVERWRITE"
 
   service_account_role_arn = module.vpc_cni_ipv4_irsa_role.iam_role_arn
 }
 
 resource "aws_eks_addon" "core-dns" {
-  cluster_name      = module.eks.cluster_id
-  addon_name        = "coredns"
-  addon_version     = data.aws_eks_addon_version.core-dns.version
-  resolve_conflicts = "OVERWRITE"
+  cluster_name                = module.eks.cluster_id
+  addon_name                  = "coredns"
+  addon_version               = data.aws_eks_addon_version.core-dns.version
+  resolve_conflicts_on_update = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "kube-proxy" {
-  cluster_name      = module.eks.cluster_id
-  addon_name        = "kube-proxy"
-  addon_version     = data.aws_eks_addon_version.kube-proxy.version
-  resolve_conflicts = "OVERWRITE"
+  cluster_name                = module.eks.cluster_id
+  addon_name                  = "kube-proxy"
+  addon_version               = data.aws_eks_addon_version.kube-proxy.version
+  resolve_conflicts_on_update = "OVERWRITE"
 }
 
 ################################################################################

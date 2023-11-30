@@ -18,7 +18,7 @@ locals {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 2.70"
+  version = "~> 5.2.0"
 
   create_vpc           = true
   name                 = var.vpc_name
@@ -30,7 +30,6 @@ module "vpc" {
   single_nat_gateway   = true
   enable_dns_hostnames = true
   enable_dns_support   = true
-  enable_s3_endpoint   = true
 
   tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared",
@@ -44,6 +43,21 @@ module "vpc" {
   private_subnet_tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"           = "1"
+  }
+}
+
+module "vpc_endpoints" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+  version = "~> 5.2.0"
+
+  vpc_id = module.vpc.vpc_id
+
+  endpoints = {
+    s3 = {
+      service      = "s3"
+      service_type = "Gateway"
+      tags         = { Name = "s3-vpc-endpoint" }
+    },
   }
 }
 
@@ -79,7 +93,7 @@ resource "aws_lb_target_group" "this" {
   name               = "${var.cluster_name}-nlb-tg"
   port               = 443
   target_type        = "ip"
-  protocol           = "tcp"
+  protocol           = "TCP"
   vpc_id             = module.vpc.vpc_id
   preserve_client_ip = "true"
 
@@ -91,7 +105,7 @@ resource "aws_lb_target_group" "this" {
 
 resource "aws_lb_listener" "this" {
   load_balancer_arn = aws_lb.this.arn
-  protocol          = "tcp"
+  protocol          = "TCP"
   port              = 443
   default_action {
     type             = "forward"
@@ -117,7 +131,7 @@ resource "aws_security_group_rule" "ingress_https" {
   security_group_id = aws_security_group.this.id
   from_port         = 443
   to_port           = 443
-  protocol          = "tcp"
+  protocol          = "TCP"
   type              = "ingress"
   cidr_blocks       = [var.vpc_cidr]
 }
@@ -173,7 +187,7 @@ module "eks" {
     }
     ingress_node_9443 = {
       description                   = "Cluster API to load balancer webhook"
-      protocol                      = "tcp"
+      protocol                      = "TCP"
       from_port                     = 9443
       to_port                       = 9443
       type                          = "ingress"
@@ -232,26 +246,26 @@ data "aws_eks_addon_version" "core-dns" {
 }
 
 resource "aws_eks_addon" "vpc-cni" {
-  cluster_name      = data.aws_eks_cluster.this.id
-  addon_name        = "vpc-cni"
-  addon_version     = data.aws_eks_addon_version.vpc-cni.version
-  resolve_conflicts = "OVERWRITE"
+  cluster_name                = module.eks.cluster_id
+  addon_name                  = "vpc-cni"
+  addon_version               = data.aws_eks_addon_version.vpc-cni.version
+  resolve_conflicts_on_update = "OVERWRITE"
 
   service_account_role_arn = module.vpc_cni_ipv4_irsa_role.iam_role_arn
 }
 
 resource "aws_eks_addon" "core-dns" {
-  cluster_name      = module.eks.cluster_id
-  addon_name        = "coredns"
-  addon_version     = data.aws_eks_addon_version.core-dns.version
-  resolve_conflicts = "OVERWRITE"
+  cluster_name                = module.eks.cluster_id
+  addon_name                  = "coredns"
+  addon_version               = data.aws_eks_addon_version.core-dns.version
+  resolve_conflicts_on_update = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "kube-proxy" {
-  cluster_name      = module.eks.cluster_id
-  addon_name        = "kube-proxy"
-  addon_version     = data.aws_eks_addon_version.kube-proxy.version
-  resolve_conflicts = "OVERWRITE"
+  cluster_name                = module.eks.cluster_id
+  addon_name                  = "kube-proxy"
+  addon_version               = data.aws_eks_addon_version.kube-proxy.version
+  resolve_conflicts_on_update = "OVERWRITE"
 }
 
 ################################################################################
