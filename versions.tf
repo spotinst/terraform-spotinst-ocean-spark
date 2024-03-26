@@ -8,7 +8,7 @@ terraform {
     }
     spotinst = {
       source  = "spotinst/spotinst"
-      version = ">= 1.115.0, < 1.123.0"
+      version = ">= 1.115.0, < 2.0.0"
     }
 
     validation = {
