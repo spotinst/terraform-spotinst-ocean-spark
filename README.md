@@ -138,7 +138,7 @@ Folder [`examples/import-ocean-cluster/`](https://github.com/spotinst/terraform-
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.0 |
-| <a name="requirement_spotinst"></a> [spotinst](#requirement\_spotinst) | >= 1.115.0, < 1.123.0 |
+| <a name="requirement_spotinst"></a> [spotinst](#requirement\_spotinst) | >= 1.115.0, < 2.0.0 |
 | <a name="requirement_validation"></a> [validation](#requirement\_validation) | 1.0.0 |
 
 ### Providers
@@ -146,7 +146,7 @@ Folder [`examples/import-ocean-cluster/`](https://github.com/spotinst/terraform-
 | Name | Version |
 |------|---------|
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
-| <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | >= 1.115.0, < 1.123.0 |
+| <a name="provider_spotinst"></a> [spotinst](#provider\_spotinst) | >= 1.115.0, < 2.0.0 |
 | <a name="provider_validation"></a> [validation](#provider\_validation) | 1.0.0 |
 
 ### Modules
