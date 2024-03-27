@@ -38,6 +38,8 @@ resource "aws_lb" "this" {
   enable_deletion_protection       = false
   enable_cross_zone_load_balancing = true
 
+  enforce_security_group_inbound_rules_on_private_link_traffic = "off"
+
 }
 
 resource "aws_vpc_endpoint_service" "this" {
