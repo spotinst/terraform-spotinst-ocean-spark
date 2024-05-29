@@ -22,9 +22,9 @@ locals {
     users = [{
       name = "terraform"
       user = {
-        token              = var.cluster_config.token
-        client-certificate = var.cluster_config.client_certificate
-        client-key         = var.cluster_config.client_key
+        token                   = var.cluster_config.token
+        client-certificate-data = var.cluster_config.client_certificate
+        client-key-data         = var.cluster_config.client_key
       }
     }]
   })
