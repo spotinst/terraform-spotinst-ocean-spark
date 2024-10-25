@@ -1,5 +1,6 @@
 variable "spotinst_token" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "spotinst_account" {

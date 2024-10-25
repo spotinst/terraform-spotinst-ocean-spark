@@ -12,7 +12,8 @@ variable "azure_subscription_id" {
 }
 
 variable "spotinst_token" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "spotinst_account" {
