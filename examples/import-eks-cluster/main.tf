@@ -22,7 +22,7 @@ provider "spotinst" {
 
 module "ocean-aws-k8s" {
   source  = "spotinst/ocean-aws-k8s/spotinst"
-  version = "0.2.3"
+  version = "1.5.0"
 
   cluster_name                = var.cluster_name
   region                      = var.aws_region
@@ -46,8 +46,8 @@ provider "kubernetes" {
 }
 
 module "ocean-controller" {
-  source  = "spotinst/ocean-controller/spotinst"
-  version = "0.43.0"
+  source  = "spotinst/kubernetes-controller/ocean"
+  version = "~> 0.0.14"
 
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account

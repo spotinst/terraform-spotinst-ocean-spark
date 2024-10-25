@@ -65,8 +65,8 @@ provider "kubernetes" {
 
 ### Deploy Ocean Controller Pod into Cluster ###
 module "ocean-controller" {
-  source  = "spotinst/ocean-controller/spotinst"
-  version = "0.43.0"
+  source  = "spotinst/kubernetes-controller/ocean"
+  version = "~> 0.0.14"
 
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account
