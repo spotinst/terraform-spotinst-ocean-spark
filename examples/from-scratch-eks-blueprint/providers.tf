@@ -13,5 +13,8 @@ terraform {
     spotinst = {
       source = "spotinst/spotinst"
     }
+    helm = {
+      source = "hashicorp/helm"
+    }
   }
 }
