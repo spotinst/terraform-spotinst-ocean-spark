@@ -33,12 +33,12 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "private_subnets" {
+variable "private_subnets_ids" {
   description = "AWS private subnet IDs"
   type        = list(any)
 }
 
-variable "public_subnets" {
+variable "public_subnets_ids" {
   description = "AWS public subnet IDs"
   type        = list(any)
 }
@@ -46,6 +46,7 @@ variable "public_subnets" {
 variable "creator_email" {
   description = "Creator's email"
   type        = string
+  default     = ""
 }
 
 variable "shutdown_time_windows" {
