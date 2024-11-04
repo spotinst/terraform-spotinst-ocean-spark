@@ -34,16 +34,18 @@ resource "spotinst_ocean_gke_import" "ocean" {
   }
 }
 
-provider "kubernetes" {
-  host                   = "https://${data.google_container_cluster.gke.endpoint}"
-  token                  = data.google_client_config.default.access_token
-  cluster_ca_certificate = base64decode(data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate)
+provider "helm" {
+  kubernetes {
+    host                   = "https://${data.google_container_cluster.gke.endpoint}"
+    token                  = data.google_client_config.default.access_token
+    cluster_ca_certificate = base64decode(data.google_container_cluster.gke.master_auth[0].cluster_ca_certificate)
+  }
 }
 
 ### Deploy Ocean Controller Pod into Cluster ###
 module "ocean-controller" {
-  source  = "spotinst/ocean-controller/spotinst"
-  version = "0.43.0"
+  source  = "spotinst/kubernetes-controller/ocean"
+  version = "~> 0.0.14"
 
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account

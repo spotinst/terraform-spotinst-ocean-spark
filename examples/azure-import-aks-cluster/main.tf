@@ -25,14 +25,15 @@ locals {
 ###############################################################################
 # Import AKS cluster into Ocean
 ###############################################################################
-
-provider "kubernetes" {
-  host                   = local.aks_admin.host
-  username               = local.aks_admin.username
-  password               = local.aks_admin.password
-  client_certificate     = base64decode(local.aks_admin.client_certificate)
-  client_key             = base64decode(local.aks_admin.client_key)
-  cluster_ca_certificate = base64decode(local.aks_admin.cluster_ca_certificate)
+provider "helm" {
+  kubernetes {
+    host                   = local.aks_admin.host
+    username               = local.aks_admin.username
+    password               = local.aks_admin.password
+    client_certificate     = base64decode(local.aks_admin.client_certificate)
+    client_key             = base64decode(local.aks_admin.client_key)
+    cluster_ca_certificate = base64decode(local.aks_admin.cluster_ca_certificate)
+  }
 }
 
 module "ocean-controller" {
@@ -45,6 +46,15 @@ module "ocean-controller" {
   cluster_identifier    = var.cluster_name
   aks_connector_enabled = true
   acd_identifier        = var.cluster_name
+}
+
+module "ocean-controller" {
+  source  = "spotinst/kubernetes-controller/ocean"
+  version = "0.0.14"
+
+  cluster_identifier = var.cluster_name
+  spotinst_token     = var.spotinst_token
+  spotinst_account   = var.spotinst_account
 }
 
 

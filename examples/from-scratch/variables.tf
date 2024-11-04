@@ -1,5 +1,6 @@
 variable "spotinst_token" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "spotinst_account" {
@@ -20,7 +21,7 @@ variable "cluster_name" {
 
 variable "cluster_version" {
   type    = string
-  default = "1.29"
+  default = "1.30"
 }
 
 variable "vpc_name" {

@@ -44,14 +44,14 @@ provider "helm" {
 }
 
 module "eks_blueprints" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.32.1"
 
   # EKS CLUSTER
   cluster_name       = var.cluster_name
   cluster_version    = var.cluster_version
   vpc_id             = var.vpc_id
-  private_subnet_ids = var.private_subnet_ids
-  public_subnet_ids  = var.public_subnet_ids
+  private_subnet_ids = var.private_subnets_ids
+  public_subnet_ids  = var.public_subnets_ids
   map_roles = [
     {
       rolearn  = aws_iam_role.nodes.arn
@@ -60,21 +60,36 @@ module "eks_blueprints" {
     }
   ]
 
-  tags = local.tags
 }
 
-module "eks_blueprints_kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons"
+module "eks_blueprints_addons" {
+  source  = "aws-ia/eks-blueprints-addons/aws"
+  version = "~> 1.18"
 
-  eks_cluster_id = module.eks_blueprints.eks_cluster_id
+  cluster_name      = var.cluster_name
+  cluster_endpoint  = module.eks_blueprints.eks_cluster_endpoint
+  cluster_version   = module.eks_blueprints.eks_cluster_version
+  oidc_provider_arn = module.eks_blueprints.eks_oidc_provider_arn
 
-  #K8s Add-ons
+  eks_addons = {
+    aws-ebs-csi-driver = {
+      most_recent = true
+    }
+    coredns = {
+      most_recent = true
+    }
+    vpc-cni = {
+      most_recent = true
+    }
+    kube-proxy = {
+      most_recent = true
+    }
+  }
+
   enable_metrics_server = true
 
-  depends_on = [
-    module.ocean-aws-k8s
-  ]
 }
+
 
 output "configure_kubectl" {
   description = "Configure kubectl: make sure you're logged in with the correct AWS profile and run the following command to update your kubeconfig"
@@ -134,17 +149,15 @@ resource "null_resource" "patience" {
 
 module "ocean-aws-k8s" {
   source  = "spotinst/ocean-aws-k8s/spotinst"
-  version = "0.2.3"
+  version = "1.5.0"
 
   # Configuration
   cluster_name                = var.cluster_name
   region                      = var.aws_region
-  subnet_ids                  = concat(var.public_subnet_ids, var.private_subnet_ids)
+  subnet_ids                  = concat(var.public_subnets_ids, var.private_subnets_ids)
   worker_instance_profile_arn = aws_iam_instance_profile.profile.arn
   security_groups             = [module.eks_blueprints.cluster_primary_security_group_id]
   min_size                    = 0
-
-  tags = local.tags
 
   shutdown_hours = {
     time_windows = var.shutdown_time_windows,
@@ -166,8 +179,8 @@ provider "spotinst" {
 }
 
 module "ocean-controller" {
-  source  = "spotinst/ocean-controller/spotinst"
-  version = "0.43.0"
+  source  = "spotinst/kubernetes-controller/ocean"
+  version = "~> 0.0.14"
 
   # Credentials.
   spotinst_token   = var.spotinst_token
@@ -187,7 +200,7 @@ module "ocean-spark" {
   ocean_cluster_id = module.ocean-aws-k8s.ocean_id
 
   cluster_config = {
-    cluster_name               = module.eks.cluster_id
+    cluster_name               = var.cluster_name
     certificate_authority_data = module.eks_blueprints.eks_cluster_certificate_authority_data
     server_endpoint            = module.eks_blueprints.eks_cluster_endpoint
     token                      = data.aws_eks_cluster_auth.this.token
