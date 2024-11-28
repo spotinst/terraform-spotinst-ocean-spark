@@ -11,16 +11,38 @@ This module imports an existing Ocean cluster into Ocean Spark.
 * EKS/GKE/AKS cluster integrated with Spot Ocean
 
 ## *Usage*
+
 ```hcl
+provider "aws" {
+  region  = var.aws_region
+  profile = var.aws_profile
+}
+
 provider "spotinst" {
   token   = var.spotinst_token
   account = var.spotinst_account
 }
 
+data "aws_eks_cluster_auth" "this" {
+  name = "cluster-name"
+}
+
+data "aws_eks_cluster" "this" {
+  name = "cluster-name"
+}
+
 module "ocean-spark" {
   source = "spotinst/ocean-spark/spotinst"
+  version = "~> 3.0.0"
 
   ocean_cluster_id = var.ocean_cluster_id
+
+  cluster_config = {
+    cluster_name               = "cluster-name"
+    certificate_authority_data = data.aws_eks_cluster.this.certificate_authority[0].data
+    server_endpoint            = data.aws_eks_cluster.this.endpoint
+    token                      = data.aws_eks_cluster_auth.this.token
+  }
 }
 ```
 
@@ -32,95 +54,19 @@ module "ocean-spark" {
 
 ## *Examples*
 
-It can be combined with other Terraform modules to support a number of installation methods for Ocean Spark:
-1. Create an Ocean Spark cluster from scratch in your AWS account
-2. Create an Ocean Spark Cluster from scratch in your AWS account with AWS Private Link support.
-3. Create an Ocean Spark cluster from scratch in your GCP account
-4. Create an Ocean Spark cluster from scratch in your Azure account
-5. Import an existing EKS cluster into Ocean Spark
-6. Import an existing GKE cluster into Ocean Spark
-7. Import an existing AKS cluster into Ocean Spark
-8. Import an existing Ocean cluster into Ocean Spark
+This module can be combined with other Terraform modules to support a number of installation methods for Ocean Spark:
 
-
-
-#### 1. Create an Ocean Spark cluster in AWS from scratch
-
-1. Use the [AWS `vpc` Terraform Module](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest) to create a VPC network.
-2. use the [AWS `eks` Terraform Module](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest) to create an EKS cluster.
-3. Use the [SPOTINST `ocean-aws-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aws-k8s/spotinst/latest) to import the EKS cluster into Ocean
-4. Use the [SPOTINST `kubernetes-controller` Terraform module](https://registry.terraform.io/modules/spotinst/kubernetes-controller/ocean/latest) to install the ocean controller deployment into kubernetes
-5. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
-
-Folder [`examples/from-scratch/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/from-scratch) contains a full example.
-
-#### 2. Create an Ocean Spark Cluster from scratch with AWS Private Link support.
-
-1. Use the [AWS `vpc` Terraform Module](https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest) to create a VPC network.
-2. Use the [AWS `eks` Terraform module](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest) to create an EKS cluster.
-3. Use the [SPOTINST `ocean-aws-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aws-k8s/spotinst/latest) to import the EKS cluster into Ocean
-4. Use the [SPOTINST `kubernetes-controller` Terraform module](https://registry.terraform.io/modules/spotinst/kubernetes-controller/ocean/latest) to install the ocean controller deployment into kubernetes
-5. Create the Private link required resources (NLB, VPC endpoint service and LB TargetGroup). [AWS Docs About PrivateLink](https://docs.aws.amazon.com/vpc/latest/privatelink/getting-started.html).
-6. Use the [ Terraform AWS EKS LB Controller Module](https://github.com/DNXLabs/terraform-aws-eks-lb-controller) to install the aws load balancer controller in the EKS cluster.
-7. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark and set the [ ingress private link input ](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_spark#nestedblock--ingress--private_link)
-
-Folder [`examples/from-scratch-with-private-link/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/from-scratch-with-private-link) contains a full example.
-
-#### 3. Create an Ocean Spark cluster in GCP from scratch
-
-1. use the [GCP `google_container_cluster` Terraform resource](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/container_cluster) to create an GKE cluster.
-2. Use the [SPOTINST `spotinst_ocean_gke_import` Terraform resource](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_gke_import) to import the GKE cluster into Ocean
-3. Use the [SPOTINST `kubernetes-controller` Terraform module](https://registry.terraform.io/modules/spotinst/kubernetes-controller/ocean/latest) to install the ocean controller deployment into kubernetes
-4. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
-
-Folder [`examples/gcp-from-scratch/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/blob/main/examples/gcp-from-scratch/main.tf) contains a full example.
-
-#### 4. Create an Ocean Spark cluster in AKS from scratch
-
-
-1. Use the [Azure `azurerm_virtual_network` Terraform resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network) and [Azure `azurerm_subnet` Terraform resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet) to create a VPC network
-2. Use the [Azure `aks` Terraform Module](https://registry.terraform.io/modules/Azure/aks/azurerm/latest) to create an Azure cluster.
-3. Use the [SPOTINST `ocean-aks-np-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aks-np-k8s/spotinst/latest) to import the AKS cluster into Ocean
-4. Use the [SPOTINST `ocean-controller` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-controller/spotinst/latest) to install the controller deployment into kubernetes
-5. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
-
-Folder [`examples/azure-from-scratch/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/blob/main/examples/azure-from-scratch/main.tf) contains a full example.
-
-#### 5. Import an existing EKS cluster
-
-1. Use the [SPOTINST `ocean-aws-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aws-k8s/spotinst/latest) to import the EKS cluster into Ocean
-2. Use the [SPOTINST `kubernetes-controller` Terraform module](https://registry.terraform.io/modules/spotinst/kubernetes-controller/ocean/latest) to install the ocean controller deployment into kubernetes
-3. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
-
-Folder [`examples/import-eks-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/import-eks-cluster) contains a full example.
-
-#### 6. Import an existing GKE cluster
-
-1. Use the [SPOTINST `spotinst_ocean_gke_import` Terraform resource](https://registry.terraform.io/providers/spotinst/spotinst/latest/docs/resources/ocean_gke_import) to import the GKE cluster into Ocean
-2. Use the [SPOTINST `kubernetes-controller` Terraform module](https://registry.terraform.io/modules/spotinst/kubernetes-controller/ocean/latest) to install the ocean controller deployment into kubernetes
-3. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
-
-Folder [`examples/gcp-import-gke-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/blob/main/examples/gcp-import-gke-cluster/) contains a full example.
-
-#### 7. Import an existing AKS cluster
-
-1. Use the [SPOTINST `ocean-aks-np-k8s` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-aks-np-k8s/spotinst/latest) to import the AKS cluster into Ocean
-2. Use the [SPOTINST `ocean-controller` Terraform module](https://registry.terraform.io/modules/spotinst/ocean-controller/spotinst/latest) to install the controller deployment into kubernetes
-3. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
-
-Folder [`examples/azure-import-aks-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/blob/main/examples/azure-import-aks-cluster/) contains a full example.
-
-
-#### 8. Import an existing Ocean cluster
-
-1. Use the [SPOTINST `ocean-spark` Terraform module](this module) to import the cluster into Ocean Spark.
-
-Folder [`examples/import-ocean-cluster/`](https://github.com/spotinst/terraform-spotinst-ocean-spark/tree/main/examples/import-ocean-cluster) contains a full example.
-
-
+1. [Create an Ocean Spark cluster from scratch in your AWS account](/examples/from-scratch/)
+2. [Create an Ocean Spark Cluster from scratch in your AWS account with AWS Private Link support](/examples/from-scratch-with-private-link/)
+3. [Create an Ocean Spark cluster from scratch in your GCP account](/examples/gcp-from-scratch/)
+4. [Create an Ocean Spark cluster from scratch in your Azure account](/examples/azure-from-scratch/)
+5. [Import an existing EKS cluster into Ocean Spark](/examples/import-eks-cluster/)
+6. [Import an existing GKE cluster into Ocean Spark](/examples/gcp-import-gke-cluster/)
+7. [Import an existing AKS cluster into Ocean Spark](/examples/azure-import-aks-cluster/)
+8. [Import an existing Ocean cluster into Ocean Spark](/examples/import-ocean-cluster/)
 
 ### :warning: Before running `terraform destroy` :warning:
-#### If your cluster was created with `v1` of the module or you set `deployer_namespace = spot-system`, follow those steps:
+#### If your cluster was created with `v1` of the module or you set `deployer_namespace = spot-system`, follow these steps:
 
 1- Switch your kubectl context to the targeted cluster
 
