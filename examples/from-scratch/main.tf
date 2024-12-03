@@ -67,7 +67,7 @@ module "vpc_endpoints" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 18.0"
+  version = "20.29.0"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
@@ -75,6 +75,9 @@ module "eks" {
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
   create_cloudwatch_log_group     = false
+
+  enable_cluster_creator_admin_permissions = true
+  authentication_mode                      = "API_AND_CONFIG_MAP"
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = concat(module.vpc.public_subnets, module.vpc.private_subnets)
@@ -114,58 +117,6 @@ module "eks" {
 }
 
 ################################################################################
-# Create aws-auth configmap
-# (the eks module recently removed their support for aws-auth management (>=18))
-################################################################################
-
-data "aws_eks_cluster_auth" "this" {
-  name = module.eks.cluster_id
-}
-
-locals {
-  kubeconfig = yamlencode({
-    apiVersion      = "v1"
-    kind            = "Config"
-    current-context = "terraform"
-    clusters = [{
-      name = module.eks.cluster_id
-      cluster = {
-        certificate-authority-data = module.eks.cluster_certificate_authority_data
-        server                     = module.eks.cluster_endpoint
-      }
-    }]
-    contexts = [{
-      name = "terraform"
-      context = {
-        cluster = module.eks.cluster_id
-        user    = "terraform"
-      }
-    }]
-    users = [{
-      name = "terraform"
-      user = {
-        token = data.aws_eks_cluster_auth.this.token
-      }
-    }]
-  })
-}
-
-resource "null_resource" "patch" {
-  triggers = {
-    kubeconfig = base64encode(local.kubeconfig)
-    cmd_patch  = "echo \"${module.eks.aws_auth_configmap_yaml}\" | kubectl apply --kubeconfig <(echo $KUBECONFIG | base64 --decode) -f -"
-  }
-
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    environment = {
-      KUBECONFIG = self.triggers.kubeconfig
-    }
-    command = self.triggers.cmd_patch
-  }
-}
-
-################################################################################
 # Import EKS cluster into Ocean
 ################################################################################
 
@@ -178,18 +129,23 @@ module "ocean-aws-k8s" {
   source  = "spotinst/ocean-aws-k8s/spotinst"
   version = "1.5.0"
 
-  cluster_name                = module.eks.cluster_id
+  cluster_name                = module.eks.cluster_name
   region                      = var.aws_region
   subnet_ids                  = module.vpc.private_subnets
   worker_instance_profile_arn = module.eks.self_managed_node_groups["bootstrap"].iam_instance_profile_arn
   security_groups             = [module.eks.node_security_group_id]
 
-  max_scale_down_percentage = 100
+  max_scale_down_percentage        = 100
+  is_aggressive_scale_down_enabled = false
 
   shutdown_hours = {
     time_windows = var.shutdown_time_windows,
     is_enabled   = var.enable_shutdown_hours
   }
+}
+
+data "aws_eks_cluster_auth" "this" {
+  name = module.eks.cluster_name
 }
 
 provider "helm" {
@@ -207,7 +163,7 @@ module "ocean-controller" {
   spotinst_token   = var.spotinst_token
   spotinst_account = var.spotinst_account
 
-  cluster_identifier = module.eks.cluster_id
+  cluster_identifier = module.eks.cluster_name
 }
 
 ################################################################################
@@ -249,7 +205,7 @@ data "aws_eks_addon_version" "core-dns" {
 }
 
 resource "aws_eks_addon" "vpc-cni" {
-  cluster_name                = module.eks.cluster_id
+  cluster_name                = module.eks.cluster_name
   addon_name                  = "vpc-cni"
   addon_version               = data.aws_eks_addon_version.vpc-cni.version
   resolve_conflicts_on_update = "OVERWRITE"
@@ -258,14 +214,14 @@ resource "aws_eks_addon" "vpc-cni" {
 }
 
 resource "aws_eks_addon" "core-dns" {
-  cluster_name                = module.eks.cluster_id
+  cluster_name                = module.eks.cluster_name
   addon_name                  = "coredns"
   addon_version               = data.aws_eks_addon_version.core-dns.version
   resolve_conflicts_on_update = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "kube-proxy" {
-  cluster_name                = module.eks.cluster_id
+  cluster_name                = module.eks.cluster_name
   addon_name                  = "kube-proxy"
   addon_version               = data.aws_eks_addon_version.kube-proxy.version
   resolve_conflicts_on_update = "OVERWRITE"
@@ -285,7 +241,7 @@ module "ocean-spark" {
   ]
 
   cluster_config = {
-    cluster_name               = module.eks.cluster_id
+    cluster_name               = module.eks.cluster_name
     certificate_authority_data = module.eks.cluster_certificate_authority_data
     server_endpoint            = module.eks.cluster_endpoint
     token                      = data.aws_eks_cluster_auth.this.token
